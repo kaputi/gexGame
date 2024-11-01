@@ -1,4 +1,4 @@
-import { vecHex, FLAT_TOP, NEIGHBOR_DIAGONAL, POINTY_TOP, SOUTH, WEST } from '../CubeVec';
+import { vecHex, FLAT_TOP, NEIGHBOR_DIAGONAL, POINTY_TOP, SOUTH, WEST } from '../VecCubeHex';
 
 test('cubeVec basics', () => {
   expect(vecHex.getOrientation()).toEqual(POINTY_TOP);
@@ -16,7 +16,7 @@ test('cubeVec basics', () => {
   expect(vecHex.validate(a)).toBe(false);
 
   expect(() => {
-    vecHex.from(1, 2, 3);
+    vecHex.fromValues(1, 2, 3);
   }).toThrow('Invalid hex cube vector');
 
   expect(vecHex.copy(vecHex.create(), a)).toEqual(a);
@@ -28,8 +28,8 @@ test('cubeVec basics', () => {
 });
 
 test('cubeVec math', () => {
-  let a = vecHex.from(-1, -1, 2);
-  let b = vecHex.from(1, 1, -2);
+  let a = vecHex.fromValues(-1, -1, 2);
+  let b = vecHex.fromValues(1, 1, -2);
 
   let c = vecHex.create();
 
@@ -56,8 +56,8 @@ test('cubeVec math', () => {
 });
 
 test('cubeVec space stuff', () => {
-  let a = vecHex.from(3, -3, 0);
-  let b = vecHex.from(1, 1, -2);
+  let a = vecHex.fromValues(3, -3, 0);
+  let b = vecHex.fromValues(1, 1, -2);
 
   const path = vecHex.path(a, b);
   const resultPath = [
@@ -113,16 +113,16 @@ test('cubeVec space stuff', () => {
   expect(direction.vector).toEqual(new Float32Array([-1, 2, -1]));
   expect(direction.neighborType).toBe(NEIGHBOR_DIAGONAL);
 
-  const direction2 = vecHex.directionBetweenCoords(a, vecHex.from(2, 0, -2));
+  const direction2 = vecHex.directionBetweenCoords(a, vecHex.fromValues(2, 0, -2));
   expect(direction2).toBe(false);
 
   const c = vecHex.getAtDistance(vecHex.create(), a, direction.vector, 2);
   expect(c).toEqual(b);
 
-  const neighbor = vecHex.neighbor(vecHex.from(1, 0, -1), WEST);
+  const neighbor = vecHex.neighbor(vecHex.fromValues(1, 0, -1), WEST);
   expect(neighbor).toEqual(vecHex.create());
 
-  const neighborDiagonal = vecHex.diagonalNeighbor(vecHex.from(1, -2, 1), SOUTH);
+  const neighborDiagonal = vecHex.diagonalNeighbor(vecHex.fromValues(1, -2, 1), SOUTH);
   expect(neighborDiagonal).toEqual(vecHex.create());
 
   const ring = vecHex.ring(vecHex.create(), 2);

@@ -108,7 +108,7 @@ class VecHex {
    * @param s - The s coordinate
    * @returns The hex cube vector
    */
-  public from = (q: number, r: number, s: number): Float32Array => {
+  public fromValues = (q: number, r: number, s: number): Float32Array => {
     const cube = new Float32Array([q, r, s]);
     if (!this.validate(cube)) throw new Error('Invalid hex cube vector');
     return cube;
@@ -290,7 +290,7 @@ class VecHex {
     const results: Float32Array[] = [];
     for (let q = 0 - radius; q <= radius; q++) {
       for (let r = Math.max(-radius, -q - radius); r <= Math.min(radius, -q + radius); r++) {
-        results.push(this.add(this.create(), center, this.from(q, r, -q - r)));
+        results.push(this.add(this.create(), center, this.fromValues(q, r, -q - r)));
       }
     }
     return results;

@@ -11,6 +11,9 @@ type HexDirection =
   | 'WEST'
   | 'NORTH_WEST';
 
+export type Vec3 = [number, number, number];
+export type Vec2 = [number, number];
+
 // CONSTANTS /////////////////////////////////////////////////
 // orientation
 export const POINTY_TOP: HexOrientation = 'pointy';
@@ -28,43 +31,43 @@ export const NORTH_WEST: HexDirection = 'NORTH_WEST';
 export const NEIGHBOR_SIDE: NeighborType = 'side';
 export const NEIGHBOR_DIAGONAL: NeighborType = 'diagonal';
 
-class VecHex {
-  private static cubeEpsilon: Float32Array = new Float32Array([1e-6, 2e-6, -3e-6]);
+class VecCube {
+  private static cubeEpsilon: Vec3 = [1e-6, 2e-6, -3e-6];
 
-  private static pointySides: Map<HexDirection, Float32Array> = new Map([
-    [NORTH_EAST, new Float32Array([1, -1, 0])],
-    [EAST, new Float32Array([1, 0, -1])],
-    [SOUTH_EAST, new Float32Array([0, 1, -1])],
-    [SOUTH_WEST, new Float32Array([-1, 1, 0])],
-    [WEST, new Float32Array([-1, 0, 1])],
-    [NORTH_WEST, new Float32Array([0, -1, 1])],
+  private static pointySides: Map<HexDirection, Vec3> = new Map([
+    [NORTH_EAST, [1, -1, 0]],
+    [EAST, [1, 0, -1]],
+    [SOUTH_EAST, [0, 1, -1]],
+    [SOUTH_WEST, [-1, 1, 0]],
+    [WEST, [-1, 0, 1]],
+    [NORTH_WEST, [0, -1, 1]],
   ]);
 
-  private static pointyDiagonals: Map<HexDirection, Float32Array> = new Map([
-    [NORTH, new Float32Array([1, -2, 1])],
-    [NORTH_EAST, new Float32Array([2, -1, -1])],
-    [EAST, new Float32Array([1, 1, -2])],
-    [SOUTH, new Float32Array([-1, 2, -1])],
-    [SOUTH_WEST, new Float32Array([-2, 1, 1])],
-    [NORTH_WEST, new Float32Array([-1, -1, 2])],
+  private static pointyDiagonals: Map<HexDirection, Vec3> = new Map([
+    [NORTH, [1, -2, 1]],
+    [NORTH_EAST, [2, -1, -1]],
+    [EAST, [1, 1, -2]],
+    [SOUTH, [-1, 2, -1]],
+    [SOUTH_WEST, [-2, 1, 1]],
+    [NORTH_WEST, [-1, -1, 2]],
   ]);
 
-  private static flatSides: Map<HexDirection, Float32Array> = new Map([
-    [NORTH, new Float32Array([0, -1, 1])],
-    [NORTH_EAST, new Float32Array([1, -1, 0])],
-    [SOUTH_EAST, new Float32Array([1, 0, -1])],
-    [SOUTH, new Float32Array([0, 1, -1])],
-    [SOUTH_WEST, new Float32Array([-1, 1, 0])],
-    [NORTH_WEST, new Float32Array([-1, 0, 1])],
+  private static flatSides: Map<HexDirection, Vec3> = new Map([
+    [NORTH, [0, -1, 1]],
+    [NORTH_EAST, [1, -1, 0]],
+    [SOUTH_EAST, [1, 0, -1]],
+    [SOUTH, [0, 1, -1]],
+    [SOUTH_WEST, [-1, 1, 0]],
+    [NORTH_WEST, [-1, 0, 1]],
   ]);
 
-  private static flatDiagonals: Map<HexDirection, Float32Array> = new Map([
-    [NORTH_EAST, new Float32Array([1, -2, 1])],
-    [EAST, new Float32Array([2, -1, -1])],
-    [SOUTH_EAST, new Float32Array([1, 1, -2])],
-    [SOUTH_WEST, new Float32Array([-1, 2, -1])],
-    [WEST, new Float32Array([-2, 1, 1])],
-    [NORTH_WEST, new Float32Array([-1, -1, 2])],
+  private static flatDiagonals: Map<HexDirection, Vec3> = new Map([
+    [NORTH_EAST, [1, -2, 1]],
+    [EAST, [2, -1, -1]],
+    [SOUTH_EAST, [1, 1, -2]],
+    [SOUTH_WEST, [-1, 2, -1]],
+    [WEST, [-2, 1, 1]],
+    [NORTH_WEST, [-1, -1, 2]],
   ]);
 
   private orientation: HexOrientation = 'pointy';
@@ -90,7 +93,7 @@ class VecHex {
    *
    * @returns The new hex cube vector
    */
-  public create = (): Float32Array => new Float32Array(3);
+  public create = (): Vec3 => [0, 0, 0];
 
   /**
    * Validate a hex cube vector
@@ -98,7 +101,7 @@ class VecHex {
    * @param a - The hex cube vector to validate
    * @returns Whether the hex cube vector is valid
    */
-  public validate = (a: Float32Array): boolean => Math.round(a[0] + a[1] + a[2]) === 0;
+  public validate = (a: Vec3): boolean => Math.round(a[0] + a[1] + a[2]) === 0;
 
   /**
    * Create a hex cube vector from axial coordinates
@@ -108,8 +111,8 @@ class VecHex {
    * @param s - The s coordinate
    * @returns The hex cube vector
    */
-  public fromValues = (q: number, r: number, s: number): Float32Array => {
-    const cube = new Float32Array([q, r, s]);
+  public fromValues = (q: number, r: number, s: number): Vec3 => {
+    const cube: Vec3 = [q, r, s];
     if (!this.validate(cube)) throw new Error('Invalid hex cube vector');
     return cube;
   };
@@ -121,7 +124,7 @@ class VecHex {
    * @param a - The hex cube vector to copy
    * @returns The copied hex cube vector
    */
-  public copy = (out: Float32Array, a: Float32Array): Float32Array => {
+  public copy = (out: Vec3, a: Vec3): Vec3 => {
     out[0] = a[0];
     out[1] = a[1];
     out[2] = a[2];
@@ -134,7 +137,7 @@ class VecHex {
    * @param a - The hex cube vector to clone
    * @returns The cloned hex cube vector
    */
-  public clone = (a: Float32Array): Float32Array => new Float32Array([a[0], a[1], a[2]]);
+  public clone = (a: Vec3): Vec3 => [a[0], a[1], a[2]];
 
   /**
    * Set the values of a hex cube vector
@@ -145,7 +148,7 @@ class VecHex {
    * @param s - The s coordinate
    * @returns The hex cube vector
    */
-  public setValues = (out: Float32Array, q: number, r: number, s: number): Float32Array => {
+  public setValues = (out: Vec3, q: number, r: number, s: number): Vec3 => {
     out[0] = q;
     out[1] = r;
     out[2] = s;
@@ -160,8 +163,7 @@ class VecHex {
    * @param b - The second hex cube vector
    * @returns Whether the hex cube vectors are equal
    */
-  public equal = (a: Float32Array, b: Float32Array): boolean =>
-    a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
+  public equal = (a: Vec3, b: Vec3): boolean => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
 
   /**
    * Add two hex cube vectors
@@ -171,7 +173,7 @@ class VecHex {
    * @param b - The second hex cube vector
    * @returns The hex cube vector
    */
-  public add = (out: Float32Array, a: Float32Array, b: Float32Array): Float32Array => {
+  public add = (out: Vec3, a: Vec3, b: Vec3): Vec3 => {
     out[0] = a[0] + b[0];
     out[1] = a[1] + b[1];
     out[2] = a[2] + b[2];
@@ -186,11 +188,7 @@ class VecHex {
    * @param subtrahend - The subtrahend hex cube vector
    * @returns The hex cube vector
    */
-  public subtract = (
-    out: Float32Array,
-    minuend: Float32Array,
-    subtrahend: Float32Array
-  ): Float32Array => {
+  public subtract = (out: Vec3, minuend: Vec3, subtrahend: Vec3): Vec3 => {
     out[0] = minuend[0] - subtrahend[0];
     out[1] = minuend[1] - subtrahend[1];
     out[2] = minuend[2] - subtrahend[2];
@@ -203,7 +201,8 @@ class VecHex {
    * @param out - The hex cube vector to round
    * @returns The rounded hex cube vector
    */
-  public round = (out: Float32Array): Float32Array => {
+  public round = (out: Vec3): Vec3 => {
+    // TODO: in and out
     let q = Math.round(out[0]);
     let r = Math.round(out[1]);
     let s = Math.round(out[2]);
@@ -227,7 +226,7 @@ class VecHex {
    * @param multiplier - The multiplier
    * @returns The hex cube vector
    */
-  public scale = (out: Float32Array, a: Float32Array, multiplier: number): Float32Array => {
+  public scale = (out: Vec3, a: Vec3, multiplier: number): Vec3 => {
     out[0] = a[0] * multiplier;
     out[1] = a[1] * multiplier;
     out[2] = a[2] * multiplier;
@@ -241,7 +240,7 @@ class VecHex {
    * @param b - The second hex cube vector
    * @returns The distance between the hex cube vectors
    */
-  public distance = (a: Float32Array, b: Float32Array): number => {
+  public distance = (a: Vec3, b: Vec3): number => {
     const vec = this.subtract(this.create(), a, b);
     return Math.max(Math.abs(vec[0]), Math.abs(vec[1]), Math.abs(vec[2]));
   };
@@ -255,7 +254,7 @@ class VecHex {
    * @param t - The interpolation value
    * @returns The hex cube vector
    */
-  public lerp = (out: Float32Array, a: Float32Array, b: Float32Array, t: number): Float32Array => {
+  public lerp = (out: Vec3, a: Vec3, b: Vec3, t: number): Vec3 => {
     out[0] = a[0] + (b[0] - a[0]) * t;
     out[1] = a[1] + (b[1] - a[1]) * t;
     out[2] = a[2] + (b[2] - a[2]) * t;
@@ -269,10 +268,10 @@ class VecHex {
    * @param destination - The destination hex cube vector
    * @returns The path between the hex cube vectors
    */
-  public path = (origin: Float32Array, destination: Float32Array): Float32Array[] => {
+  public path = (origin: Vec3, destination: Vec3): Vec3[] => {
     const N = this.distance(origin, destination);
-    const results: Float32Array[] = [];
-    const bEpsilon = this.add(this.create(), destination, VecHex.cubeEpsilon);
+    const results: Vec3[] = [];
+    const bEpsilon = this.add(this.create(), destination, VecCube.cubeEpsilon);
     for (let i = 0; i <= N; i++) {
       results.push(this.round(this.lerp(this.create(), origin, bEpsilon, (1 / N) * i)));
     }
@@ -286,8 +285,8 @@ class VecHex {
    * @param radius - The radius
    * @returns The range of hex cube vectors
    */
-  public range = (center: Float32Array, radius: number): Float32Array[] => {
-    const results: Float32Array[] = [];
+  public range = (center: Vec3, radius: number): Vec3[] => {
+    const results: Vec3[] = [];
     for (let q = 0 - radius; q <= radius; q++) {
       for (let r = Math.max(-radius, -q - radius); r <= Math.min(radius, -q + radius); r++) {
         results.push(this.add(this.create(), center, this.fromValues(q, r, -q - r)));
@@ -303,7 +302,7 @@ class VecHex {
    * @param b - The second range
    * @returns The intersection of the ranges
    */
-  public intersection = (a: Float32Array[], b: Float32Array[]): Float32Array[] =>
+  public intersection = (a: Vec3[], b: Vec3[]): Vec3[] =>
     a.filter((aCoord) => b.some((bCoord) => this.equal(aCoord, bCoord)));
 
   /**
@@ -314,9 +313,9 @@ class VecHex {
    * @returns The direction vector and neighbor type, returns false if the coords are not side, or diagonal
    */
   public directionBetweenCoords = (
-    origin: Float32Array,
-    destination: Float32Array
-  ): { vector: Float32Array; neighborType: NeighborType } | false => {
+    origin: Vec3,
+    destination: Vec3
+  ): { vector: Vec3; neighborType: NeighborType } | false => {
     //first we cero on origin
     const a = this.subtract(this.create(), destination, origin);
 
@@ -354,15 +353,15 @@ class VecHex {
    * @returns The hex cube vector
    */
   public getAtDistance = (
-    out: Float32Array,
-    origin: Float32Array,
-    direction: Float32Array | HexDirection,
+    out: Vec3,
+    origin: Vec3,
+    direction: Vec3 | HexDirection,
     distance: number
-  ): Float32Array => {
+  ): Vec3 => {
     if (typeof direction === 'string') {
-      const sides = this.orientation === POINTY_TOP ? VecHex.pointySides : VecHex.flatSides;
+      const sides = this.orientation === POINTY_TOP ? VecCube.pointySides : VecCube.flatSides;
       const diagonals =
-        this.orientation === POINTY_TOP ? VecHex.pointyDiagonals : VecHex.flatDiagonals;
+        this.orientation === POINTY_TOP ? VecCube.pointyDiagonals : VecCube.flatDiagonals;
 
       const directionVector =
         sides.get(direction as HexDirection) || diagonals.get(direction as HexDirection);
@@ -380,8 +379,8 @@ class VecHex {
    * @param direction - Number between 0 and 5, starting from north(flat) or north east(pointy), and going clockwise
    * @returns The neighbor hex cube vector
    */
-  public neighbor = (a: Float32Array, direction: HexDirection): Float32Array => {
-    const sides = this.orientation === POINTY_TOP ? VecHex.pointySides : VecHex.flatSides;
+  public neighbor = (a: Vec3, direction: HexDirection): Vec3 => {
+    const sides = this.orientation === POINTY_TOP ? VecCube.pointySides : VecCube.flatSides;
     const sideVector = sides.get(direction);
     if (!sideVector) throw new Error('Invalid direction');
 
@@ -395,9 +394,9 @@ class VecHex {
    * @param direction - Number between 0 and 5, starting from north-east(flat) or north(pointy), and going clockwise
    * @returns The diagonal neighbor hex cube vector
    */
-  public diagonalNeighbor = (a: Float32Array, direction: HexDirection): Float32Array => {
+  public diagonalNeighbor = (a: Vec3, direction: HexDirection): Vec3 => {
     const diagonals =
-      this.orientation === POINTY_TOP ? VecHex.pointyDiagonals : VecHex.flatDiagonals;
+      this.orientation === POINTY_TOP ? VecCube.pointyDiagonals : VecCube.flatDiagonals;
     const diagonalVector = diagonals.get(direction);
 
     if (!diagonalVector) throw new Error('Invalid direction');
@@ -412,7 +411,7 @@ class VecHex {
    * @param a - The hex cube vector to rotate
    * @returns The rotated hex cube vector
    */
-  public rotateCW = (out: Float32Array, a: Float32Array): Float32Array => {
+  public rotateCW = (out: Vec3, a: Vec3): Vec3 => {
     const a0 = a[0];
     const a1 = a[1];
     const a2 = a[2];
@@ -429,7 +428,7 @@ class VecHex {
    * @param a - The hex cube vector to rotate
    * @returns The rotated hex cube vector
    */
-  public rotateCCW = (out: Float32Array, a: Float32Array): Float32Array => {
+  public rotateCCW = (out: Vec3, a: Vec3): Vec3 => {
     const aQ = a[0];
     const aR = a[1];
     const aS = a[2];
@@ -446,7 +445,7 @@ class VecHex {
    * @param a - The hex cube vector to reflect
    * @returns The reflected hex cube vector
    */
-  public reflectQ = (out: Float32Array, a: Float32Array): Float32Array => {
+  public reflectQ = (out: Vec3, a: Vec3): Vec3 => {
     const aR = a[1];
     out[0] = a[0];
     out[1] = a[2];
@@ -461,7 +460,7 @@ class VecHex {
    * @param a - The hex cube vector to reflect
    * @returns The reflected hex cube vector
    */
-  public reflectR = (out: Float32Array, a: Float32Array): Float32Array => {
+  public reflectR = (out: Vec3, a: Vec3): Vec3 => {
     const aQ = a[0];
     out[0] = a[2];
     out[1] = a[1];
@@ -476,7 +475,7 @@ class VecHex {
    * @param a - The hex cube vector to reflect
    * @returns The reflected hex cube vector
    */
-  public reflectS = (out: Float32Array, a: Float32Array): Float32Array => {
+  public reflectS = (out: Vec3, a: Vec3): Vec3 => {
     const aQ = a[0];
     out[0] = a[1];
     out[1] = aQ;
@@ -491,17 +490,17 @@ class VecHex {
    * @param radius - The radius
    * @returns The hex cube vectors of the ring
    */
-  public ring = (a: Float32Array, radius: number): Float32Array[] => {
+  public ring = (a: Vec3, radius: number): Vec3[] => {
     if (radius === 0) return [a];
-    const results: Float32Array[] = [];
+    const results: Vec3[] = [];
 
-    let directions: Map<HexDirection, Float32Array>;
+    let directions: Map<HexDirection, Vec3>;
     let start: HexDirection;
     if (this.orientation === POINTY_TOP) {
-      directions = VecHex.pointySides;
+      directions = VecCube.pointySides;
       start = WEST;
     } else {
-      directions = VecHex.flatSides;
+      directions = VecCube.flatSides;
       start = SOUTH_WEST;
     }
 
@@ -524,14 +523,39 @@ class VecHex {
    * @param radius - The radius
    * @returns The hex cube vectors of the spiral
    */
-  public spiral = (a: Float32Array, radius: number): Float32Array[] => {
+  public spiral = (a: Vec3, radius: number): Vec3[] => {
     if (radius === 0) return [a];
-    const results: Float32Array[] = [a];
+    const results: Vec3[] = [a];
     for (let i = 1; i <= radius; i++) {
       results.push(...this.ring(a, i));
     }
     return results;
   };
+
+  /**
+   * Convert a hex cube vector to an axial vector
+   *
+   * @param a - The hex cube vector
+   * @returns The axial vector
+   */
+  public toAxial = (a: Vec3): Vec2 => [a[0], a[1]];
+
+  /**
+   * Convert an axial vector to a hex cube vector
+   *
+   * @param a - The axial vector
+   * @returns The hex cube vector
+   */
+  public fromAxial = (a: Vec2): Vec3 => this.fromValues(a[0], a[1], -a[0] - a[1]);
+
+  // function axial_round(hex):
+  //     return cube_to_axial(cube_round(axial_to_cube(hex)))
+  public roundAxial = (out: Vec2, a: Vec2): Vec2 => {
+    const b = this.fromAxial(a);
+    this.round(b);
+    out = this.toAxial(b);
+    return out;
+  };
 }
 
-export const vecHex = new VecHex();
+export const vecCube = new VecCube();

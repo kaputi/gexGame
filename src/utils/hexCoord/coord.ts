@@ -47,14 +47,41 @@ export abstract class Coords {
   ]);
   static readonly cubeEpsilon: CubeCoord = [1e-6, 2e-6, -3e-6];
 
-  protected static _width = 0;
-  protected static _height = 0;
+  private static _width = 0;
+  private static _height = 0;
+  private static _halfSize = 0;
+  private static _halfWidth = 0;
+  private static _halfHeight = 0;
+
   private static _orientation: HexOrientation = POINTY_TOP;
   private static _size = -1;
 
   private static updateDimensions() {
     Coords._width = Coords._orientation === 'pointy' ? Coords._size * sqrt3 : Coords._size * 2;
     Coords._height = Coords._orientation === 'pointy' ? Coords._size * 2 : Coords._size * sqrt3;
+    Coords._halfSize = Coords._size / 2;
+    Coords._halfWidth = Coords._width / 2;
+    Coords._halfHeight = Coords._height / 2;
+  }
+
+  static get width() {
+    return Coords._width;
+  }
+
+  static get height() {
+    return Coords._height;
+  }
+
+  static get halfSize() {
+    return Coords._halfSize;
+  }
+
+  static get halfWidth() {
+    return Coords._halfWidth;
+  }
+
+  static get halfHeight() {
+    return Coords._halfHeight;
   }
 
   static get size() {

@@ -1,10 +1,12 @@
 import { Hex } from './hex';
-import { Vec3 } from './utils/coord';
+import { drawFps } from './renderers/drawFps';
+import { drawMap } from './renderers/drawMap';
+import { Coords, cubeCoord, CubeCoord } from './utils/hexCoord';
 
-export type HexMap = Map<string, Vec3>;
+export type HexMap = Map<string, CubeCoord>;
 
 export class Game {
-  private _map = new Map<string, Vec3>();
+  private _map = new Map<string, CubeCoord>();
   private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
   private _running = false;
@@ -14,22 +16,23 @@ export class Game {
   private _fps = -1;
   private _lastFpsDrawTime = -1;
 
-  private selectedHex: string | null = null;
+  private _selectedHex: Hex | null = null;
 
   offsetX = 0;
   offsetY = 0;
 
   _backgroundColor = '#000000';
 
-  _hexes: Hex[] = [];
+  // _hexes: Hex[] = [];
+  _hexes = new Map<string, Hex>();
 
   constructor(map: HexMap) {
     this._map = map;
     const size = 30;
-    Hex.size = size;
+    Coords.size = size;
 
     this._map.forEach((v) => {
-      this._hexes.push(new Hex(v));
+      this._hexes.set(cubeCoord.toString(v), new Hex(v));
     });
 
     const windowBBox = document.body.getBoundingClientRect();
@@ -54,10 +57,17 @@ export class Game {
   }
 
   selectHex(id: string) {
-    if (this._map.has(id)) {
-      // console.log(id);
+    if (id === this._selectedHex?.id) return;
+
+    if (this._selectedHex) {
+      this._selectedHex.deselect();
+      this._selectedHex = null;
     }
-    this.selectedHex = id;
+
+    const hex = this._hexes.get(id);
+    if (!hex) return;
+    hex.select();
+    this._selectedHex = hex;
   }
 
   set backgroundColor(color: string) {
@@ -86,6 +96,7 @@ export class Game {
     // TODO:
     // only draw if something changed
     this.draw();
+
     if (this._lastDrawTime === -1) {
       this._lastDrawTime = performance.now();
       this._lastFpsDrawTime = this._lastDrawTime;
@@ -101,39 +112,14 @@ export class Game {
     this._loopId = requestAnimationFrame(this.loop.bind(this));
   }
 
-  drawFps() {
-    const ctx = this._ctx;
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '16px Arial';
-    ctx.fillText(`FPS: ${Math.round(this._fps)}`, 10, 20);
-  }
-
-  drawHexes() {
-    const ctx = this._ctx;
-    ctx.strokeStyle = '#ffffff';
-    this._hexes.forEach((hex) => {
-      const points = hex.points;
-      ctx.beginPath();
-      points.forEach((p, i) => {
-        if (i === 0) ctx.moveTo(p[0] + this.offsetX, p[1] + this.offsetY);
-        else ctx.lineTo(p[0] + this.offsetX, p[1] + this.offsetY);
-      });
-      ctx.closePath();
-      ctx.stroke();
-      if (this.selectedHex === hex.id) {
-        ctx.fillStyle = '#ff0000';
-        ctx.fill();
-      }
-    });
-  }
-
   draw() {
     const ctx = this._ctx;
+
+    // clear the canvas
     ctx.fillStyle = this._backgroundColor;
     ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
 
-    this.drawHexes();
-
-    this.drawFps();
+    drawMap(ctx, this._hexes, this.offsetX, this.offsetY);
+    drawFps(ctx, this._fps);
   }
 }

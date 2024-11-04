@@ -12,16 +12,17 @@ export class Game {
   private _running = false;
   private _loopId: number | null = null;
 
-  private _lastDrawTime = -1;
-  private _fps = -1;
-  private _lastFpsDrawTime = -1;
+  private _backgroundColor = '#000000';
 
+  private _previous = -1;
+  private _fps = -1;
+
+  // TODO: this should be state
   private _selectedHex: Hex | null = null;
 
+  // NOTE: this is for testing
   offsetX = 0;
   offsetY = 0;
-
-  _backgroundColor = '#000000';
 
   // _hexes: Hex[] = [];
   _hexes = new Map<string, Hex>();
@@ -82,7 +83,7 @@ export class Game {
   start() {
     if (this._running) return;
     this._running = true;
-    this.loop();
+    this._loopId = requestAnimationFrame(this.loop.bind(this));
   }
 
   stop() {
@@ -92,22 +93,24 @@ export class Game {
     this._loopId = null;
   }
 
-  loop() {
-    // TODO:
-    // only draw if something changed
+  update(elapsed: number) {
+    // TODO: update game state
+
+    // NOTE: elapsed is in ms or s (see loop)
+    // so for example gravity, should be how many pixels to fall per second or per ms
+
+    console.log(elapsed);
+  }
+
+  loop(timestamp: number) {
+    if (this._previous === -1) this._previous = timestamp;
+
+    // NOTE: elapsed time is in milliseconds, but maybe we should use seconds
+    this.update(timestamp - this._previous);
+
     this.draw();
 
-    if (this._lastDrawTime === -1) {
-      this._lastDrawTime = performance.now();
-      this._lastFpsDrawTime = this._lastDrawTime;
-    } else {
-      const now = performance.now();
-      if (now - this._lastFpsDrawTime > 500) {
-        this._fps = 1000 / (now - this._lastDrawTime);
-        this._lastFpsDrawTime = now;
-      }
-      this._lastDrawTime = now;
-    }
+    this._previous = timestamp;
 
     this._loopId = requestAnimationFrame(this.loop.bind(this));
   }

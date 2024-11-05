@@ -1,12 +1,11 @@
-import { Hex } from './hex';
+import { FLAT_TOP } from './Hex';
+import { Hex } from './Hex/Hex';
 import { drawFps } from './renderers/drawFps';
 import { drawMap } from './renderers/drawMap';
-import { Coords, cubeCoord, CubeCoord } from './utils/hexCoord';
 
-export type HexMap = Map<string, CubeCoord>;
+export type HexMap = Map<string, Hex>;
 
 export class Game {
-  private _map = new Map<string, CubeCoord>();
   private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
   private _running = false;
@@ -15,7 +14,11 @@ export class Game {
   private _backgroundColor = '#000000';
 
   private _previous = -1;
+
+  private _actualFps = 0;
   private _fps = -1;
+  private _lastFpsUpdate = 0;
+  private _fpsUpdateInterval = 300;
 
   // TODO: this should be state
   private _selectedHex: Hex | null = null;
@@ -24,17 +27,13 @@ export class Game {
   offsetX = 0;
   offsetY = 0;
 
-  // _hexes: Hex[] = [];
-  _hexes = new Map<string, Hex>();
+  _hexes: HexMap = new Map();
 
-  constructor(map: HexMap) {
-    this._map = map;
+  constructor(hexes: HexMap) {
     const size = 30;
-    Coords.size = size;
+    Hex.size = [size, size];
 
-    this._map.forEach((v) => {
-      this._hexes.set(cubeCoord.toString(v), new Hex(v));
-    });
+    this._hexes = hexes;
 
     const windowBBox = document.body.getBoundingClientRect();
 
@@ -45,8 +44,7 @@ export class Game {
     canvas.style.top = '0';
     canvas.style.left = '0';
 
-    this.offsetX = windowBBox.width / 2;
-    this.offsetY = windowBBox.height / 2;
+    Hex.origin = [windowBBox.width / 2, windowBBox.height / 2];
 
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Could not get 2d context');
@@ -96,16 +94,25 @@ export class Game {
   update(elapsed: number) {
     // TODO: update game state
 
-    // NOTE: elapsed is in ms or s (see loop)
-    // so for example gravity, should be how many pixels to fall per second or per ms
+    // NOTE: elapsed is in ms
+    // so for example gravity, should be how many pixels to fall per ms
 
-    console.log(elapsed);
+    this.updateFps(elapsed);
+  }
+
+  updateFps(elapsed: number) {
+    this._actualFps = 1000 / elapsed;
+    this._lastFpsUpdate += elapsed;
+
+    if (this._lastFpsUpdate > this._fpsUpdateInterval) {
+      this._lastFpsUpdate = 0;
+      this._fps = this._actualFps;
+    }
   }
 
   loop(timestamp: number) {
     if (this._previous === -1) this._previous = timestamp;
 
-    // NOTE: elapsed time is in milliseconds, but maybe we should use seconds
     this.update(timestamp - this._previous);
 
     this.draw();
@@ -122,7 +129,7 @@ export class Game {
     ctx.fillStyle = this._backgroundColor;
     ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
 
-    drawMap(ctx, this._hexes, this.offsetX, this.offsetY);
+    drawMap(ctx, this._hexes);
     drawFps(ctx, this._fps);
   }
 }

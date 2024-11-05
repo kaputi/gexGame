@@ -1,18 +1,13 @@
-import { Hex } from '../hex';
+import { HexMap } from '../Game';
 
-export const drawMap = (
-  ctx: CanvasRenderingContext2D,
-  map: Map<string, Hex>,
-  offsetX: number,
-  offsetY: number
-) => {
+export const drawMap = (ctx: CanvasRenderingContext2D, map: HexMap) => {
   ctx.strokeStyle = '#ffffff';
   map.forEach((hex) => {
     const points = hex.points;
     ctx.beginPath();
     points.forEach((p, i) => {
-      if (i === 0) ctx.moveTo(p[0] + offsetX, p[1] + offsetY);
-      else ctx.lineTo(p[0] + offsetX, p[1] + offsetY);
+      if (i === 0) ctx.moveTo(p[0], p[1]);
+      else ctx.lineTo(p[0], p[1]);
     });
     ctx.closePath();
     ctx.stroke();

@@ -1,30 +1,23 @@
-import { Game } from './Game';
+import { Game, HexMap } from './Game';
+import { Hex, hexUtils } from './Hex';
 import './style.css';
-import { CubeCoord, cubeCoord } from './utils/hexCoord';
 
-const center = cubeCoord.create();
+const origin = hexUtils.create();
+const range = hexUtils.range(origin, 6);
 
-const range = cubeCoord.range(center, 6);
+Hex.size = [30, 30];
 
-const map = new Map<string, CubeCoord>();
+const map: HexMap = new Map();
 
 range.forEach((v) => {
-  map.set(cubeCoord.toString(v), v);
+  map.set(hexUtils.toString(v), new Hex(...v));
 });
 
 const game = new Game(map);
 
 document.addEventListener('mousemove', (e) => {
-  const x = e.clientX - game.offsetX;
-  const y = e.clientY - game.offsetY;
-
-  // const axial = vecCube.roundAxial([0, 0], [q, r]);
-  // const coord = vecCube.fromAxial(vecCube.create(), axial);
-
-  // const id = vecCube.toString(coord);
-  // game.selectHex(id);
-
-  console.log(x, y);
+  const hex = Hex.pointToHex([e.clientX, e.clientY]);
+  game.selectHex(hexUtils.toString(hex));
 });
 
 game.start();

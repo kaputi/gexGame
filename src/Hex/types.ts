@@ -11,5 +11,4 @@ export type HexDirection =
   | 'SOUTH_WEST'
   | 'WEST'
   | 'NORTH_WEST';
-
 export type DirectionMap = Map<HexDirection, CubeCoord>;

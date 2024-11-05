@@ -1,4 +1,4 @@
-import { HexDirection, HexOrientation, NeighborType } from './types';
+import { HexOrientation, HexDirection, NeighborType } from './types';
 
 export const POINTY_TOP: HexOrientation = 'pointy';
 export const FLAT_TOP: HexOrientation = 'flat';

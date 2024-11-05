@@ -1,7 +1,60 @@
-import { axialCoord, Coords } from '.';
-import { sqrt3, sqrt3_2, sqrt3_3 } from '../math';
-import { NEIGHBOR_DIAGONAL, NEIGHBOR_SIDE, POINTY_TOP, SOUTH_WEST, WEST } from './constants';
-import { AxialCoord, CubeCoord, DirectionMap, HexDirection, NeighborType } from './types';
+import {
+  DirectionMap,
+  CubeCoord,
+  AxialCoord,
+  NeighborType,
+  HexDirection,
+  HexOrientation,
+} from './types';
+
+import {
+  NORTH,
+  NORTH_EAST,
+  EAST,
+  SOUTH_EAST,
+  SOUTH,
+  SOUTH_WEST,
+  WEST,
+  NORTH_WEST,
+  NEIGHBOR_SIDE,
+  NEIGHBOR_DIAGONAL,
+  POINTY_TOP,
+} from './constants';
+
+const pointySides: DirectionMap = new Map([
+  [NORTH_EAST, [1, -1, 0]],
+  [EAST, [1, 0, -1]],
+  [SOUTH_EAST, [0, 1, -1]],
+  [SOUTH_WEST, [-1, 1, 0]],
+  [WEST, [-1, 0, 1]],
+  [NORTH_WEST, [0, -1, 1]],
+]);
+const pointyDiagonals: DirectionMap = new Map([
+  [NORTH, [1, -2, 1]],
+  [NORTH_EAST, [2, -1, -1]],
+  [EAST, [1, 1, -2]],
+  [SOUTH, [-1, 2, -1]],
+  [SOUTH_WEST, [-2, 1, 1]],
+  [NORTH_WEST, [-1, -1, 2]],
+]);
+const flatSides: DirectionMap = new Map([
+  [NORTH, [0, -1, 1]],
+  [NORTH_EAST, [1, -1, 0]],
+  [SOUTH_EAST, [1, 0, -1]],
+  [SOUTH, [0, 1, -1]],
+  [SOUTH_WEST, [-1, 1, 0]],
+  [NORTH_WEST, [-1, 0, 1]],
+]);
+const flatDiagonals: DirectionMap = new Map([
+  [NORTH_EAST, [1, -2, 1]],
+  [EAST, [2, -1, -1]],
+  [SOUTH_EAST, [1, 1, -2]],
+  [SOUTH_WEST, [-1, 2, -1]],
+  [WEST, [-2, 1, 1]],
+  [NORTH_WEST, [-1, -1, 2]],
+]);
+
+const cubeEpsilon: CubeCoord = [1e-6, 2e-6, -3e-6];
 
 /**
  * Hexagon cube coordinate utilities
@@ -219,7 +272,7 @@ export const lerp = (out: CubeCoord, a: CubeCoord, b: CubeCoord, t: number): Cub
 export const path = (origin: CubeCoord, destination: CubeCoord): CubeCoord[] => {
   const N = distance(origin, destination);
   const results: CubeCoord[] = [];
-  const bEpsilon = add(create(), destination, Coords.cubeEpsilon);
+  const bEpsilon = add(create(), destination, cubeEpsilon);
 
   for (let i = 0; i <= N; i++) {
     const a = create();
@@ -307,12 +360,12 @@ export const getAtDistance = (
   out: CubeCoord,
   origin: CubeCoord,
   direction: CubeCoord | HexDirection,
-  distance: number
+  distance: number,
+  orientation: HexOrientation = POINTY_TOP
 ): CubeCoord => {
   if (typeof direction === 'string') {
-    const sides = Coords.orientation === POINTY_TOP ? Coords.pointySides : Coords.flatSides;
-    const diagonals =
-      Coords.orientation === POINTY_TOP ? Coords.pointyDiagonals : Coords.flatDiagonals;
+    const sides = orientation === POINTY_TOP ? pointySides : flatSides;
+    const diagonals = orientation === POINTY_TOP ? pointyDiagonals : flatDiagonals;
 
     const directionVector =
       sides.get(direction as HexDirection) || diagonals.get(direction as HexDirection);
@@ -330,8 +383,13 @@ export const getAtDistance = (
  * @param direction - Number between 0 and 5, starting from north(flat) or north east(pointy), and going clockwise
  * @returns The neighbor hex cube vector
  */
-export const neighbor = (out: CubeCoord, a: CubeCoord, direction: HexDirection): CubeCoord => {
-  const sides = Coords.orientation === POINTY_TOP ? Coords.pointySides : Coords.flatSides;
+export const neighbor = (
+  out: CubeCoord,
+  a: CubeCoord,
+  direction: HexDirection,
+  orientation: HexOrientation = POINTY_TOP
+): CubeCoord => {
+  const sides = orientation === POINTY_TOP ? pointySides : flatSides;
   const sideVector = sides.get(direction);
   if (!sideVector) throw new Error('Invalid direction');
 
@@ -348,10 +406,10 @@ export const neighbor = (out: CubeCoord, a: CubeCoord, direction: HexDirection):
 export const diagonalNeighbor = (
   out: CubeCoord,
   a: CubeCoord,
-  direction: HexDirection
+  direction: HexDirection,
+  orientation: HexOrientation = POINTY_TOP
 ): CubeCoord => {
-  const diagonals =
-    Coords.orientation === POINTY_TOP ? Coords.pointyDiagonals : Coords.flatDiagonals;
+  const diagonals = orientation === POINTY_TOP ? pointyDiagonals : flatDiagonals;
   const diagonalVector = diagonals.get(direction);
 
   if (!diagonalVector) throw new Error('Invalid direction');
@@ -445,17 +503,21 @@ export const reflectS = (out: CubeCoord, a: CubeCoord): CubeCoord => {
  * @param radius - The radius
  * @returns The hex cube vectors of the ring
  */
-export const ring = (a: CubeCoord, radius: number): CubeCoord[] => {
+export const ring = (
+  a: CubeCoord,
+  radius: number,
+  orientation: HexOrientation = POINTY_TOP
+): CubeCoord[] => {
   if (radius === 0) return [a];
   const results: CubeCoord[] = [];
 
   let directions: DirectionMap;
   let start: HexDirection;
-  if (Coords.orientation === POINTY_TOP) {
-    directions = Coords.pointySides;
+  if (orientation === POINTY_TOP) {
+    directions = pointySides;
     start = WEST;
   } else {
-    directions = Coords.flatSides;
+    directions = flatSides;
     start = SOUTH_WEST;
   }
 
@@ -478,11 +540,15 @@ export const ring = (a: CubeCoord, radius: number): CubeCoord[] => {
  * @param radius - The radius
  * @returns The hex cube vectors of the spiral
  */
-export const spiral = (a: CubeCoord, radius: number): CubeCoord[] => {
+export const spiral = (
+  a: CubeCoord,
+  radius: number,
+  orientation: HexOrientation = POINTY_TOP
+): CubeCoord[] => {
   if (radius === 0) return [a];
   const results: CubeCoord[] = [a];
   for (let i = 1; i <= radius; i++) {
-    results.push(...ring(a, i));
+    results.push(...ring(a, i, orientation));
   }
   return results;
 };
@@ -493,34 +559,9 @@ export const spiral = (a: CubeCoord, radius: number): CubeCoord[] => {
  * @param a - The vec to convert
  * @returns The string
  */
-export const toString = (a: CubeCoord): string => `${a[0]},${a[1]},${a[2]}`;
-
-export const pixelToCube = (out: CubeCoord, x: number, y: number): CubeCoord => {
-  let q = 0;
-  let r = 0;
-
-  if (Coords.orientation === POINTY_TOP) {
-    q = (sqrt3_3 * x - (1 / 3) * y) / Coords.size;
-    r = ((2 / 3) * y) / Coords.size;
-  } else {
-    q = ((2 / 3) * x) / Coords.size;
-    r = ((-1 / 3) * x + sqrt3_3 * y) / Coords.size;
-  }
-
-  const a = axialCoord.fromValues(q, r);
-  axialCoord.round(a, a);
-  fromAxial(out, a);
-
-  return out;
-};
-
-export const cubeToPixel = (out: [number, number], a: CubeCoord): [number, number] => {
-  if (Coords.orientation === POINTY_TOP) {
-    out[0] = Coords.size * (sqrt3 * a[0] + sqrt3_2 * a[1]);
-    out[1] = Coords.size * ((3 / 2) * a[1]);
-  } else {
-    out[0] = Coords.size * (3 / 2) * a[0];
-    out[1] = Coords.size * (sqrt3_2 * a[0] + sqrt3 * a[1]);
-  }
-  return out;
+export const toString = (a: CubeCoord): string => {
+  // if (a[0] === -0) a[0] = 0;
+  // if (a[1] === -0) a[1] = 0;
+  // if (a[2] === -0) a[2] = 0;
+  return `${a[0].toFixed(0)},${a[1].toFixed(0)},${a[2].toFixed(0)}`;
 };

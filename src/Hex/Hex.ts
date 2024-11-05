@@ -1,7 +1,7 @@
 import { sqrt3, sqrt3_2, sqrt3_3 } from '../utils/math';
-import { CubeCoord, AxialCoord, HexOrientation } from './types';
+import { CubeCoord, AxialCoord, HexOrientation, HexDirection } from './types';
 
-import { POINTY_TOP } from './constants';
+import { flatSides, POINTY_TOP, pointySides } from './constants';
 import { hexUtils } from '.';
 
 export class Hex {
@@ -138,5 +138,18 @@ export class Hex {
 
   select() {
     this._selected = true;
+  }
+
+  neighbor(direction: HexDirection): CubeCoord {
+    return hexUtils.neighbor(hexUtils.create(), this._cube, direction, Hex.orientation);
+  }
+
+  neighbors(): CubeCoord[] {
+    const neighbors: CubeCoord[] = [];
+    const map = Hex.orientation === POINTY_TOP ? pointySides : flatSides;
+    map.forEach((_val, direction) => {
+      neighbors.push(this.neighbor(direction));
+    });
+    return neighbors;
   }
 }

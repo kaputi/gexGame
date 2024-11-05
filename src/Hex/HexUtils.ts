@@ -8,51 +8,16 @@ import {
 } from './types';
 
 import {
-  NORTH,
-  NORTH_EAST,
-  EAST,
-  SOUTH_EAST,
-  SOUTH,
   SOUTH_WEST,
   WEST,
-  NORTH_WEST,
   NEIGHBOR_SIDE,
   NEIGHBOR_DIAGONAL,
   POINTY_TOP,
+  pointySides,
+  flatSides,
+  pointyDiagonals,
+  flatDiagonals,
 } from './constants';
-
-const pointySides: DirectionMap = new Map([
-  [NORTH_EAST, [1, -1, 0]],
-  [EAST, [1, 0, -1]],
-  [SOUTH_EAST, [0, 1, -1]],
-  [SOUTH_WEST, [-1, 1, 0]],
-  [WEST, [-1, 0, 1]],
-  [NORTH_WEST, [0, -1, 1]],
-]);
-const pointyDiagonals: DirectionMap = new Map([
-  [NORTH, [1, -2, 1]],
-  [NORTH_EAST, [2, -1, -1]],
-  [EAST, [1, 1, -2]],
-  [SOUTH, [-1, 2, -1]],
-  [SOUTH_WEST, [-2, 1, 1]],
-  [NORTH_WEST, [-1, -1, 2]],
-]);
-const flatSides: DirectionMap = new Map([
-  [NORTH, [0, -1, 1]],
-  [NORTH_EAST, [1, -1, 0]],
-  [SOUTH_EAST, [1, 0, -1]],
-  [SOUTH, [0, 1, -1]],
-  [SOUTH_WEST, [-1, 1, 0]],
-  [NORTH_WEST, [-1, 0, 1]],
-]);
-const flatDiagonals: DirectionMap = new Map([
-  [NORTH_EAST, [1, -2, 1]],
-  [EAST, [2, -1, -1]],
-  [SOUTH_EAST, [1, 1, -2]],
-  [SOUTH_WEST, [-1, 2, -1]],
-  [WEST, [-2, 1, 1]],
-  [NORTH_WEST, [-1, -1, 2]],
-]);
 
 const cubeEpsilon: CubeCoord = [1e-6, 2e-6, -3e-6];
 

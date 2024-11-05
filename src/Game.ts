@@ -1,4 +1,3 @@
-import { FLAT_TOP } from './Hex';
 import { Hex } from './Hex/Hex';
 import { drawFps } from './renderers/drawFps';
 import { drawMap } from './renderers/drawMap';

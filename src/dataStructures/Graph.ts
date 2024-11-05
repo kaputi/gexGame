@@ -24,6 +24,11 @@ export class GraphNode<T> {
   }
 }
 
+export interface GraphPath<T> {
+  nodes: T[];
+  distance: number;
+}
+
 export class Graph<T> {
   nodes = new Map<T, GraphNode<T>>();
 
@@ -67,7 +72,7 @@ export class Graph<T> {
   }
 
   // djikstra(from: T, to: T): Record<string, number | T[]> | null {
-  djikstra(from: T, to: T): T[] | null {
+  djikstra(from: T, to: T): GraphPath<T> | null {
     // TODO: can be optimized by using a priority queue
 
     const start = this.nodes.get(from);
@@ -80,15 +85,15 @@ export class Graph<T> {
 
     const toVisit: GraphNode<T>[] = [];
 
-    const distances = new Map<GraphNode<T>, number>();
-    distances.set(start, 0);
+    const calculatedWeights = new Map<GraphNode<T>, number>();
+    calculatedWeights.set(start, 0);
 
     const previous = new Map<GraphNode<T>, GraphNode<T>>();
 
     let current = start;
 
     while (true) {
-      const dist = distances.get(current)!;
+      const dist = calculatedWeights.get(current)!;
 
       const adjacent = current.adjacent;
 
@@ -98,14 +103,14 @@ export class Graph<T> {
         const adjDist = dist + weight;
 
         if (previous.has(node)) {
-          const prevDist = distances.get(node);
+          const prevDist = calculatedWeights.get(node);
           if (prevDist && adjDist < prevDist) {
-            distances.set(node, adjDist);
+            calculatedWeights.set(node, adjDist);
             previous.set(node, current);
           }
         } else {
           previous.set(node, current);
-          distances.set(node, adjDist);
+          calculatedWeights.set(node, adjDist);
         }
       }
 
@@ -125,9 +130,6 @@ export class Graph<T> {
     path.push(start.data);
     path.reverse();
 
-    // const totalDistance = distances.get(end)!;
-    // return { path, distance: totalDistance };
-
-    return path;
+    return { nodes: path, distance: calculatedWeights.get(end)! };
   }
 }

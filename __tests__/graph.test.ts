@@ -36,7 +36,8 @@ test('graph', () => {
   graph.addEdge('G', 'B', 2);
   graph.addEdge('G', 'F', 5);
 
-  const result = graph.djikstra('A', 'B');
+  const { nodes, distance } = graph.djikstra('A', 'B')!;
 
-  expect(result).toEqual({ path: ['A', 'C', 'E', 'B'], distance: 6 });
+  expect(nodes).toEqual(['A', 'C', 'E', 'B']);
+  expect(distance).toEqual(6);
 });

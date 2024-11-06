@@ -1,7 +1,7 @@
 import { Game, HexMap } from './Game';
 import { Hex, hexUtils } from './Hex';
 import './style.css';
-import { Graph } from './dataStructures/Graph';
+import { Graph, GraphNode } from './dataStructures/Graph';
 
 const origin = hexUtils.create();
 const range = hexUtils.range(origin, 6);
@@ -40,12 +40,13 @@ if (start === end) {
   }
 }
 
-const result = graph.djikstra(start, end)!;
-result.forEach((hex) => {
+const { nodes } = graph.aStar(start, end)!;
+// const { nodes } = graph.djikstra(start, end)!;
+// const {nodes} = graph.bfs(start, end)!;
+
+nodes.forEach((hex) => {
   hex.select();
 });
-
-// console.log(path);
 
 const game = new Game(map);
 

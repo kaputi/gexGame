@@ -32,7 +32,14 @@ const cubeEpsilon: CubeCoord = [1e-6, 2e-6, -3e-6];
  *
  * @returns The new hex cube vector
  */
-export const create = (): CubeCoord => [0, 0, 0];
+export const createCube = (): CubeCoord => [0, 0, 0];
+
+/**
+ * Create a new hex axial vector
+ *
+ * @returns The new hex axial vector
+ */
+export const createAxial = (): AxialCoord => [0, 0];
 
 /**
  * Validate a hex cube vector
@@ -207,7 +214,7 @@ export const scale = (out: CubeCoord, a: CubeCoord, multiplier: number): CubeCoo
  * @returns The distance between the hex cube vectors
  */
 export const distance = (a: CubeCoord, b: CubeCoord): number => {
-  const vec = subtract(create(), a, b);
+  const vec = subtract(createCube(), a, b);
   return Math.max(Math.abs(vec[0]), Math.abs(vec[1]), Math.abs(vec[2]));
 };
 
@@ -237,10 +244,10 @@ export const lerp = (out: CubeCoord, a: CubeCoord, b: CubeCoord, t: number): Cub
 export const path = (origin: CubeCoord, destination: CubeCoord): CubeCoord[] => {
   const N = distance(origin, destination);
   const results: CubeCoord[] = [];
-  const bEpsilon = add(create(), destination, cubeEpsilon);
+  const bEpsilon = add(createCube(), destination, cubeEpsilon);
 
   for (let i = 0; i <= N; i++) {
-    const a = create();
+    const a = createCube();
     results.push(round(a, lerp(a, origin, bEpsilon, (1 / N) * i)));
   }
 
@@ -258,7 +265,7 @@ export const range = (center: CubeCoord, radius: number): CubeCoord[] => {
   const results: CubeCoord[] = [];
   for (let q = 0 - radius; q <= radius; q++) {
     for (let r = Math.max(-radius, -q - radius); r <= Math.min(radius, -q + radius); r++) {
-      results.push(add(create(), center, fromValues(q, r, -q - r)));
+      results.push(add(createCube(), center, fromValues(q, r, -q - r)));
     }
   }
   return results;
@@ -286,7 +293,7 @@ export const directionBetweenCoords = (
   destination: CubeCoord
 ): { vector: CubeCoord; neighborType: NeighborType } | false => {
   //first we cero on origin
-  const a = subtract(create(), destination, origin);
+  const a = subtract(createCube(), destination, origin);
 
   const isSide = a.indexOf(0) !== -1;
   if (isSide) {
@@ -334,9 +341,9 @@ export const getAtDistance = (
 
     const directionVector =
       sides.get(direction as HexDirection) || diagonals.get(direction as HexDirection);
-    add(out, origin, scale(create(), directionVector!, distance));
+    add(out, origin, scale(createCube(), directionVector!, distance));
   } else {
-    add(out, origin, scale(create(), direction, distance));
+    add(out, origin, scale(createCube(), direction, distance));
   }
   return out;
 };
@@ -486,11 +493,11 @@ export const ring = (
     start = SOUTH_WEST;
   }
 
-  let hex = add(create(), a, scale(create(), directions.get(start)!, radius));
+  let hex = add(createCube(), a, scale(createCube(), directions.get(start)!, radius));
 
   for (const [direction] of directions) {
     for (let i = 0; i < radius; i++) {
-      hex = neighbor(create(), hex, direction);
+      hex = neighbor(createCube(), hex, direction);
       results.push(hex);
     }
   }

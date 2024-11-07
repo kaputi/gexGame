@@ -1,21 +1,22 @@
-import { Asset, ASSET_TYPE_AUDIO, AssetType } from './assets';
+import { ASSET_TYPE_AUDIO } from './constants';
+import { Asset, AssetType } from './types';
 
 export class AudioAsset implements Asset {
   type: AssetType = ASSET_TYPE_AUDIO;
   loaded = false;
-  audio: HTMLAudioElement | null = null;
+  data: HTMLAudioElement | null = null;
 
   constructor(
     public name: string,
     public src: string
   ) {}
 
-  load(): Promise<HTMLAudioElement> {
-    if (this.loaded) return Promise.resolve(this.audio as HTMLAudioElement);
+  async load(): Promise<HTMLAudioElement> {
+    if (this.loaded) return Promise.resolve(this.data as HTMLAudioElement);
     return new Promise((resolve, reject) => {
       const audio = new Audio();
       audio.oncanplaythrough = () => {
-        this.audio = audio;
+        this.data = audio;
         this.loaded = true;
         resolve(audio);
       };

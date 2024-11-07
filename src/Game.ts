@@ -1,6 +1,8 @@
+import { Assets } from './Assets/Assets';
 import { Hex } from './Hex/Hex';
 import { drawFps } from './renderers/drawFps';
 import { drawGrid } from './renderers/drawGrid';
+import { drawLoading } from './renderers/drawLoading';
 import { drawMap } from './renderers/drawMap';
 
 export type HexMap = Map<string, Hex>;
@@ -24,37 +26,40 @@ export class Game {
   private _selectedHex: Hex | null = null;
 
   private drawGrid = true;
+  private loadingScreen = true;
+  private spinnerRotation = 0;
+  private cx = 0;
+  private cy = 0;
 
-  // NOTE: this is for testing
-  offsetX = 0;
-  offsetY = 0;
+  assets = new Assets();
 
   _hexes: HexMap = new Map();
 
-  constructor(hexes: HexMap) {
-    const size = 30;
-    Hex.size = [size, size];
-
-    this._hexes = hexes;
-
-    const windowBBox = document.body.getBoundingClientRect();
-
+  constructor() {
     const canvas = document.createElement('canvas');
-    canvas.width = windowBBox.width;
-    canvas.height = windowBBox.height;
     canvas.style.position = 'fixed ';
     canvas.style.top = '0';
     canvas.style.left = '0';
 
-    Hex.origin = [windowBBox.width / 2, windowBBox.height / 2];
-
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Could not get 2d context');
-
     this._canvas = canvas;
     this._ctx = ctx;
 
     document.body.appendChild(canvas);
+
+    window.addEventListener('resize', this.handleResize.bind(this));
+
+    this.handleResize();
+  }
+
+  handleResize() {
+    const windowBBox = document.body.getBoundingClientRect();
+    this._canvas.width = windowBBox.width;
+    this._canvas.height = windowBBox.height;
+    this.cx = windowBBox.width / 2;
+    this.cy = windowBBox.height / 2;
+    Hex.origin = [this.cx, this.cy];
   }
 
   selectHex(id: string) {
@@ -100,6 +105,7 @@ export class Game {
     // so for example gravity, should be how many pixels to fall per ms
 
     this.updateFps(elapsed);
+    if (this.loadingScreen) this.updateLoading(elapsed);
   }
 
   updateFps(elapsed: number) {
@@ -110,6 +116,11 @@ export class Game {
       this._lastFpsUpdate = 0;
       this._fps = this._actualFps;
     }
+  }
+
+  updateLoading(elapsed: number) {
+    this.spinnerRotation += 0.005 * elapsed; // spinner speed  * elapsed
+    if (this.spinnerRotation > 360) this.spinnerRotation = 0;
   }
 
   loop(timestamp: number) {
@@ -130,6 +141,11 @@ export class Game {
     // clear the canvas
     ctx.fillStyle = this._backgroundColor;
     ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
+
+    if (this.loadingScreen) {
+      drawLoading(ctx, this.cx, this.cy, this.spinnerRotation, this.assets.progress);
+      return;
+    }
 
     if (this.drawGrid) drawGrid(ctx, this._canvas);
     drawMap(ctx, this._hexes);

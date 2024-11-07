@@ -41,7 +41,7 @@ export class Hex {
     const q = M.b0 * pt[0] + M.b1 * pt[1];
     const r = M.b2 * pt[0] + M.b3 * pt[1];
 
-    return hexUtils.round(hexUtils.create(), [q, r, -q - r]);
+    return hexUtils.round(hexUtils.createCube(), [q, r, -q - r]);
   }
 
   public static hexToPoint(hex: CubeCoord): [number, number] {
@@ -141,7 +141,7 @@ export class Hex {
   }
 
   neighbor(direction: HexDirection): CubeCoord {
-    return hexUtils.neighbor(hexUtils.create(), this._cube, direction, Hex.orientation);
+    return hexUtils.neighbor(hexUtils.createCube(), this._cube, direction, Hex.orientation);
   }
 
   neighbors(): CubeCoord[] {

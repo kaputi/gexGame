@@ -1,5 +1,6 @@
 import { Hex } from './Hex/Hex';
 import { drawFps } from './renderers/drawFps';
+import { drawGrid } from './renderers/drawGrid';
 import { drawMap } from './renderers/drawMap';
 
 export type HexMap = Map<string, Hex>;
@@ -21,6 +22,8 @@ export class Game {
 
   // TODO: this should be state
   private _selectedHex: Hex | null = null;
+
+  private drawGrid = true;
 
   // NOTE: this is for testing
   offsetX = 0;
@@ -128,6 +131,7 @@ export class Game {
     ctx.fillStyle = this._backgroundColor;
     ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
 
+    if (this.drawGrid) drawGrid(ctx, this._canvas);
     drawMap(ctx, this._hexes);
     drawFps(ctx, this._fps);
   }

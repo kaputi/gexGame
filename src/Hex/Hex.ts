@@ -70,6 +70,7 @@ export class Hex {
   private _selfOrigin: [number, number];
   private _selfOrientation: HexOrientation;
   private _selected = false;
+  public terrain = 'grass';
 
   constructor(q?: number, r?: number, s?: number) {
     if (q !== undefined && r === undefined) {
@@ -107,6 +108,17 @@ export class Hex {
   set axial(val: AxialCoord) {
     this._axial = val;
     this._cube = [val[0], val[1], -val[0] - val[1]];
+  }
+
+  get center(): [number, number] {
+    return Hex.hexToPoint(this._cube);
+  }
+
+  get topLeft(): [number, number] {
+    const [cx, cy] = this.center;
+    const leftCorner = Hex.hexCornerOffset(Hex.orientation === POINTY_TOP ? 2 : 3);
+    const topCorner = Hex.hexCornerOffset(Hex.orientation === POINTY_TOP ? 4 : 0);
+    return [cx + leftCorner[0], cy + topCorner[1]];
   }
 
   get points(): [number, number][] {

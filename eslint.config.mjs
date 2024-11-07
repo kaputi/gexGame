@@ -6,5 +6,11 @@ import tseslint from 'typescript-eslint';
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
-  ...tseslint.configs.stylistic
+  ...tseslint.configs.stylistic,
+  {
+    rules: {
+      // 'no-unused-vars': ['error', { varsIgnorePattern: '^_', argsIgnorePattern: '^_' }],
+      // '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^_' }],
+    },
+  }
 );

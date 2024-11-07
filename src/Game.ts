@@ -4,8 +4,7 @@ import { drawFps } from './renderers/drawFps';
 import { drawGrid } from './renderers/drawGrid';
 import { drawLoading } from './renderers/drawLoading';
 import { drawMap } from './renderers/drawMap';
-
-export type HexMap = Map<string, Hex>;
+import { WorldMap } from './WorldMap';
 
 export class Game {
   private _canvas: HTMLCanvasElement;
@@ -32,8 +31,7 @@ export class Game {
   private cy = 0;
 
   assets = new Assets();
-
-  _hexes: HexMap = new Map();
+  worldMap: WorldMap | null = null;
 
   constructor() {
     const canvas = document.createElement('canvas');
@@ -63,14 +61,14 @@ export class Game {
   }
 
   selectHex(id: string) {
-    if (id === this._selectedHex?.id) return;
+    if (!this.worldMap || id === this._selectedHex?.id) return;
 
     if (this._selectedHex) {
       this._selectedHex.deselect();
       this._selectedHex = null;
     }
 
-    const hex = this._hexes.get(id);
+    const hex = this.worldMap.hexes.get(id);
     if (!hex) return;
     hex.select();
     this._selectedHex = hex;
@@ -121,6 +119,9 @@ export class Game {
   updateLoading(elapsed: number) {
     this.spinnerRotation += 0.005 * elapsed; // spinner speed  * elapsed
     if (this.spinnerRotation > 360) this.spinnerRotation = 0;
+
+    if (this.assets.progress[0] === this.assets.progress[1] && this.worldMap)
+      this.loadingScreen = false;
   }
 
   loop(timestamp: number) {
@@ -148,7 +149,12 @@ export class Game {
     }
 
     if (this.drawGrid) drawGrid(ctx, this._canvas);
-    drawMap(ctx, this._hexes);
+    if (this.worldMap)
+      drawMap(
+        ctx,
+        this.worldMap.hexes,
+        this.assets.get('hexTiles')!.asset.data as HTMLImageElement
+      );
     drawFps(ctx, this._fps);
   }
 }

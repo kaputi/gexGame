@@ -1,11 +1,47 @@
 import { Game } from './Game';
 import { Hex, POINTY_TOP } from './Hex';
 import './style.css';
+import { WorldMap } from './WorldMap';
+import { MapHexMetadata } from './WorldMap/WorldMap';
+import { generateRandomMap } from '../generateRandomMap';
+import { sqrt3 } from './utils/math';
 
 const config = {
   orientation: POINTY_TOP,
-  hexSize: [30, 30],
+  hexSize: [64, 64],
+  // hexSize: [128 / sqrt3, 74],
 };
+
+Hex.orientation = config.orientation;
+Hex.size = config.hexSize as [number, number];
+
+const testHex = new Hex(0, 0, 0);
+const a = testHex.points;
+
+const maxX = Math.max(...a.map((p) => p[0]));
+const maxY = Math.max(...a.map((p) => p[1]));
+const minX = Math.min(...a.map((p) => p[0]));
+const minY = Math.min(...a.map((p) => p[1]));
+console.log('maxX', maxX);
+console.log('maxY', maxY);
+console.log('minX', minX);
+console.log('minY', minY);
+
+const width = maxX - minX;
+const height = maxY - minY;
+console.log('width', width);
+console.log('height', height);
+const ratio = height / width;
+console.log('ratio', ratio);
+console.log('ratio applied to original size', 64 * ratio);
+// console.log('sqrt3', sqrt3);
+
+
+// console.log(sqrt3 * width);
+
+// width = sqrt3 * X
+// 128 = sqrt3 * X
+//   128 / sqrt3 = X
 
 async function initGame() {
   // configure
@@ -19,19 +55,28 @@ async function initGame() {
 
   // setup assets
   const assetsToLoad: string[][] = [
-    ['hexTiles', '/myHexes.png'],
+    ['hexTiles', '/myHexes128x148.png'],
     ['mapTest', '/mapTest.json'],
   ];
   assetsToLoad.forEach(([name, src]) => {
     game.assets.add(name, src);
   });
 
-  game.assets.loadAllAssets((asset) => {
+  await game.assets.loadAllAssets((asset) => {
     console.log(asset);
   });
 
+  const mapMetadata = game.assets.get('mapTest')!.asset.data as {
+    name: string;
+    locations: MapHexMetadata[];
+  };
+  console.log('mapMetadata', mapMetadata);
+  const wm = new WorldMap(mapMetadata.name, mapMetadata.locations);
+  game.worldMap = wm;
+
   // const randomMap = generateRandomMap(3);
-  // console.log(randomMap);
+  // console.log('randomMap', randomMap);
+  // console.log(JSON.stringify(randomMap));
 
   // const map: HexMap = new Map();
   // const graph = new Graph<Hex>();

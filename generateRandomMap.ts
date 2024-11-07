@@ -1,27 +1,36 @@
-import { AxialCoord, hexUtils } from './src/Hex';
+import { AxialCoord, CubeCoord, hexUtils } from './src/Hex';
 
 interface HexMeta {
   coord: AxialCoord;
   terrain: string;
 }
 
-const terrains = ['grass', 'sea', 'mountain', 'forest', 'desert', 'swamp', 'snow'];
+const terrains = ['grass', 'forest', 'river', 'ocean', 'desert', 'mountain', 'snow', 'tundra'];
 
 export const generateRandomMap = (radius = 3): HexMeta[] => {
   const origin = hexUtils.createCube();
   const range = hexUtils.range(origin, radius);
+  console.log('range', range);
 
-  const arrOfArrs: AxialCoord[][] = [];
-
+  const mappedByR = new Map<number, CubeCoord[]>();
   range.forEach((cubeC) => {
-    const axial = hexUtils.toAxial(hexUtils.createAxial(), cubeC);
-    if (!arrOfArrs[axial[1]]) arrOfArrs[axial[1]] = [];
-    arrOfArrs[axial[1]].push(axial);
+    if (!mappedByR.has(cubeC[1])) mappedByR.set(cubeC[1], []);
+    const sortedByS = mappedByR.get(cubeC[1])!;
+    sortedByS.push(cubeC);
+    sortedByS.sort((a, b) => a[2] - b[2]);
   });
 
-  const flatArr = arrOfArrs.flat();
+  const keysSorted = Array.from(mappedByR.keys()).sort((a, b) => a - b);
+  const flatCubesSorted: CubeCoord[] = [];
+  keysSorted.forEach((key) => {
+    flatCubesSorted.push(...mappedByR.get(key)!);
+  });
 
-  const map = flatArr.map((coord) => {
+  const AxialSorted = flatCubesSorted.map((cubeC) => {
+    return hexUtils.toAxial(hexUtils.createAxial(), cubeC);
+  });
+
+  const map = AxialSorted.map((coord) => {
     return {
       coord,
       terrain: terrains[Math.floor(Math.random() * terrains.length)],

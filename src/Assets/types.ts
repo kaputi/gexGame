@@ -1,4 +1,4 @@
-export type AssetType = 'image' | 'audio' | 'font' | 'json';
+export type AssetType = 'image' | 'audio' | 'font' | 'json' | 'tile';
 
 export interface Asset {
   name: string;

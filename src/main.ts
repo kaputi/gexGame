@@ -1,47 +1,14 @@
+import { TileAsset } from './Assets/TileAsset';
 import { Game } from './Game';
-import { Hex, POINTY_TOP } from './Hex';
+import { Hex, hexUtils, POINTY_TOP } from './Hex';
 import './style.css';
 import { WorldMap } from './WorldMap';
 import { MapHexMetadata } from './WorldMap/WorldMap';
-import { generateRandomMap } from '../generateRandomMap';
-import { sqrt3 } from './utils/math';
 
 const config = {
   orientation: POINTY_TOP,
-  hexSize: [64, 64],
-  // hexSize: [128 / sqrt3, 74],
+  hexSize: [128,128],
 };
-
-Hex.orientation = config.orientation;
-Hex.size = config.hexSize as [number, number];
-
-const testHex = new Hex(0, 0, 0);
-const a = testHex.points;
-
-const maxX = Math.max(...a.map((p) => p[0]));
-const maxY = Math.max(...a.map((p) => p[1]));
-const minX = Math.min(...a.map((p) => p[0]));
-const minY = Math.min(...a.map((p) => p[1]));
-console.log('maxX', maxX);
-console.log('maxY', maxY);
-console.log('minX', minX);
-console.log('minY', minY);
-
-const width = maxX - minX;
-const height = maxY - minY;
-console.log('width', width);
-console.log('height', height);
-const ratio = height / width;
-console.log('ratio', ratio);
-console.log('ratio applied to original size', 64 * ratio);
-// console.log('sqrt3', sqrt3);
-
-
-// console.log(sqrt3 * width);
-
-// width = sqrt3 * X
-// 128 = sqrt3 * X
-//   128 / sqrt3 = X
 
 async function initGame() {
   // configure
@@ -57,14 +24,25 @@ async function initGame() {
   const assetsToLoad: string[][] = [
     ['hexTiles', '/myHexes128x148.png'],
     ['mapTest', '/mapTest.json'],
+    ['mapTilesHeight3', '/hexTiles_128x128_height_3x20.png'],
   ];
+
   assetsToLoad.forEach(([name, src]) => {
     game.assets.add(name, src);
   });
 
-  await game.assets.loadAllAssets((asset) => {
-    console.log(asset);
-  });
+  const mapTiles = game.assets.get('mapTilesHeight3')! .asset as TileAsset;
+  console.log(mapTiles)
+  mapTiles.tileSize = [128, 128];
+  mapTiles.resourceSize = [128, 188];
+
+  try {
+    await game.assets.loadAllAssets((asset) => {
+      console.log(asset);
+    });
+  } catch (err) {
+    console.error(err);
+  }
 
   const mapMetadata = game.assets.get('mapTest')!.asset.data as {
     name: string;
@@ -119,10 +97,10 @@ async function initGame() {
   // });
 
   // test mouse events ////////////////////////////////////////////////////////
-  // document.addEventListener('mousemove', (e) => {
-  //   const hex = Hex.pointToHex([e.clientX, e.clientY]);
-  //   game.selectHex(hexUtils.toString(hex));
-  // });
+  document.addEventListener('mousemove', (e) => {
+    const hex = Hex.pointToHex([e.clientX, e.clientY]);
+    game.selectHex(hexUtils.toString(hex));
+  });
 }
 
 initGame();

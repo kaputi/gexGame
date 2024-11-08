@@ -23,7 +23,7 @@ export class FontAsset implements Asset {
           this.loaded = true;
           resolve(font);
         })
-        .catch(reject);
+        .catch(() => reject(new Error(`Failed to load font: ${this.src}`)));
     });
   }
 }

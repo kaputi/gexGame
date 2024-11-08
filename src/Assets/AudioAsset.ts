@@ -20,7 +20,7 @@ export class AudioAsset implements Asset {
         this.loaded = true;
         resolve(audio);
       };
-      audio.onerror = reject;
+      audio.onerror = () => reject(new Error(`Failed to load audio: ${this.src}`));
       audio.src = this.src;
     });
   }

@@ -1,4 +1,5 @@
 import { Assets } from './Assets/Assets';
+import { TileAsset } from './Assets/TileAsset';
 import { Hex } from './Hex/Hex';
 import { drawFps } from './renderers/drawFps';
 import { drawGrid } from './renderers/drawGrid';
@@ -153,7 +154,9 @@ export class Game {
       drawMap(
         ctx,
         this.worldMap.hexes,
-        this.assets.get('hexTiles')!.asset.data as HTMLImageElement
+        // this.assets.get('hexTiles')!.asset.data as HTMLImageElement
+        // this.assets.get('mapTilesHeight3')!.asset.data as HTMLImageElement
+        this.assets.get('mapTilesHeight3')!.asset as TileAsset
       );
     drawFps(ctx, this._fps);
   }

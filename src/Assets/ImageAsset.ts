@@ -21,7 +21,7 @@ export class ImageAsset implements Asset {
         this.loaded = true;
         resolve(image);
       };
-      image.onerror = reject;
+      image.onerror = () => reject(new Error(`Failed to load image: ${this.src}`));
       image.src = this.src;
     });
   }

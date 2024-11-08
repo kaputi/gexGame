@@ -4,6 +4,7 @@ export const drawGrid = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElemen
   const halfHeight = height / 2;
 
   ctx.fillStyle = '#00ff00';
+  ctx.lineWidth = 1;
   for (let i = 0; i < halfWidth; i += 10) {
     if (i !== 0 && i % 100 === 0) ctx.strokeStyle = '#00ff00';
     else ctx.strokeStyle = '#00661b';

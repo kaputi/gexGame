@@ -47,7 +47,7 @@ export class Hex {
     Hex.height = height;
   }
 
-  public static pointToHex(point: AxialCoord): CubeCoord {
+  public static pointToHex(point: AxialCoord, round = true): CubeCoord {
     if (Hex._width <= 0 || Hex._height <= 0)
       throw new Error('Hex2.width and Hex2.height must be set');
     const M = Hex.orientation === POINTY_TOP ? Hex.pointyMtx : Hex.flatMtx;
@@ -57,7 +57,11 @@ export class Hex {
     const q = M.b0 * pt[0] + M.b1 * pt[1];
     const r = M.b2 * pt[0] + M.b3 * pt[1];
 
-    return cube.round(cube.fromAxial([q, r]));
+    const cubeCoord = cube.fromAxial([q, r]);
+
+    if (round) return cube.round(cubeCoord, cubeCoord);
+
+    return cubeCoord;
   }
 
   public static hexToPoint(hex: CubeCoord): AxialCoord {
@@ -89,7 +93,7 @@ export class Hex {
   private _selfSize: AxialCoord;
   private _selfOrigin: AxialCoord = [0, 0];
   private _selfOrientation: HexOrientation;
-  public terrain = 'grass';
+  public terrain: Terrain = 'grass';
 
   constructor(q: number, r: number, s: number) {
     if (Math.round(q + r + s) !== 0) throw new Error('q + r + s must be 0');

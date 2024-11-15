@@ -6,9 +6,11 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "npm run format && npm run lint && tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint src",
+    "format": "prettier --write src | grep -v \"unchanged\" | xargs",
+    "format-verbose": "prettier --write src",
     "test": "jest"
   },
   "devDependencies": {

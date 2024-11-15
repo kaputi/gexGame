@@ -1,10 +1,13 @@
+import { ASSET_TYPE_IMAGE, ImageAsset } from './Assets';
 import { Assets } from './Assets/Assets';
 import { Hex } from './Hex/Hex';
+import { cube } from './hexUtils';
 import { drawFps } from './renderers/drawFps';
 import { drawGrid } from './renderers/drawGrid';
 import { drawLoading } from './renderers/drawLoading';
 import { drawMap } from './renderers/drawMap';
 import { drawSelecetdHex } from './renderers/drawSelectedHex';
+import { TileSet } from './TileSet';
 import { WorldMap } from './WorldMap';
 
 export class Game {
@@ -32,9 +35,14 @@ export class Game {
   private cy = 0;
 
   assets = new Assets();
+  tileSets = new Map<string, TileSet>();
   worldMap: WorldMap | null = null;
 
+  testTerrain: Terrain = 'grass';
+
   private mouseDown = false;
+  private firstClick: [number, number] | null = null;
+  private mouseMoved = false;
 
   constructor() {
     const canvas = document.createElement('canvas');
@@ -51,28 +59,67 @@ export class Game {
 
     window.addEventListener('resize', this.handleResize.bind(this));
 
-    window.addEventListener('mousedown', this.handleMouseDown.bind(this));
+    this._canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
 
-    window.addEventListener('mousemove', this.handleMouseMove.bind(this));
+    this._canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
 
-    window.addEventListener('mouseup', this.handleMouseUp.bind(this));
+    this._canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
+
+    this._canvas.addEventListener('wheel', this.handleMouseWheel.bind(this));
 
     this.handleResize();
   }
 
-  handleMouseDown() {
+  handleMouseWheel(e: WheelEvent) {
+    const mousePos = [e.clientX, e.clientY];
+
+    const hex = Hex.pointToHex(mousePos, false);
+
+    const modifier = e.deltaY > 0 ? 0.9 : 1.1;
+    const newWidth = Hex.width * modifier;
+    const newHeight = Hex.height * modifier;
+    Hex.setDimensions(newWidth, newHeight);
+    const newOrigin = [...Hex.origin].map((v) => v * modifier);
+    Hex.origin = newOrigin;
+
+    const newPoint = Hex.hexToPoint(hex);
+
+    const diff = [newPoint[0] - mousePos[0], newPoint[1] - mousePos[1]];
+    Hex.origin = [Hex.origin[0] - diff[0], Hex.origin[1] - diff[1]];
+  }
+
+  handleMouseDown(e: MouseEvent) {
     this.mouseDown = true;
-    // TODO: pick entity
+    this.firstClick = [e.clientX, e.clientY];
   }
 
   handleMouseMove(e: MouseEvent) {
-    if (!this.mouseDown) return;
+    const hex = Hex.pointToHex([e.clientX, e.clientY]);
+    this.selectHex(cube.toString(hex));
+    if (!this.mouseDown || !this.firstClick) return;
+    const dist = [e.clientX - this.firstClick[0], e.clientY - this.firstClick[1]];
+    if (Math.sqrt(dist[0] ** 2 + dist[1] ** 2) < 2) return;
+    this.mouseMoved = true;
     Hex.origin[0] += e.movementX;
     Hex.origin[1] += e.movementY;
   }
 
-  handleMouseUp() {
+  handleMouseUp(e: MouseEvent) {
+    if (!this.mouseMoved) {
+      // TODO:  this code is for map editor
+      if (!this.worldMap) return;
+      const hexCoord = Hex.pointToHex([e.x, e.y]);
+      const id = cube.toString(hexCoord);
+
+      if (!this.worldMap.hexes.has(id)) {
+        const hex = new Hex(hexCoord[0], hexCoord[1], hexCoord[2]);
+        hex.terrain = this.testTerrain;
+        this.worldMap.addMapHex(hex);
+      } else this.worldMap.removeMapHex(this.worldMap.hexes.get(id)!);
+      // console.log(JSON.stringify(this.worldMap.getMapMetadata()));
+    }
     this.mouseDown = false;
+    this.mouseMoved = false;
   }
 
   handleResize() {
@@ -84,6 +131,14 @@ export class Game {
     Hex.origin = [this.cx, this.cy];
   }
 
+  setTileSet(name: string, assetName: string, tileWidth: number, tileHeight: number) {
+    const assetObj = this.assets.get(assetName);
+    if (!assetObj) throw new Error('Asset not found');
+    const { asset } = assetObj;
+    if (asset.type !== ASSET_TYPE_IMAGE) throw new Error('Invalid asset type');
+    this.tileSets.set(name, new TileSet(name, asset as ImageAsset, tileWidth, tileHeight));
+  }
+
   selectHex(id: string) {
     if (!this.worldMap || id === this._selectedHex?.id) return;
 
@@ -93,7 +148,6 @@ export class Game {
 
     const hex = this.worldMap.hexes.get(id);
     if (!hex) return;
-    // hex.select();
     this._selectedHex = hex;
   }
 
@@ -177,7 +231,8 @@ export class Game {
         ctx,
         this.worldMap.hexes,
         // this.assets.get('hexTiles')!.asset.data as HTMLImageElement
-        this.assets.get('mapTilesHeight3')!.asset.data as HTMLImageElement
+        // this.assets.get('mapTilesHeight3')!.asset.data as HTMLImageElement
+        this.tileSets.get('mapTiles')!
       );
     if (this._selectedHex) drawSelecetdHex(ctx, this._selectedHex);
 

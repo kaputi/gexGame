@@ -8,6 +8,19 @@
   </head>
   <body>
     <div id="app"></div>
+    <button id="downloadMap" style="z-index: 99999999; position: fixed; top: 100px; left: 10px">
+      DOWNLOAD MAP
+    </button>
+    <select style="z-index: 99999999; position: fixed; top: 150px; left: 10px" id="terrainType">
+      <option value="grass">Grass</option>
+      <option value="forest">Forest</option>
+      <option value="river">River</option>
+      <option value="ocean">Ocean</option>
+      <option value="desert">Desert</option>
+      <option value="mountain">Mountain</option>
+      <option value="snow">Snow</option>
+      <option value="tundra">Tundra</option>
+    </select>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -1,14 +1,14 @@
 import { Game } from './Game';
 import { Hex } from './Hex';
-import { cube, POINTY_TOP } from './hexUtils';
+import { POINTY_TOP } from './hexUtils';
 import './style.css';
 import { WorldMap } from './WorldMap';
 import { MapHexMetadata } from './WorldMap/WorldMap';
 
 const config = {
   orientation: POINTY_TOP,
-  hexWidth: 64,
-  hexHeight: 64,
+  hexWidth: 128,
+  hexHeight: 80,
 };
 
 async function initGame() {
@@ -25,7 +25,10 @@ async function initGame() {
   const assetsToLoad: string[][] = [
     ['hexTiles', '/myHexes128x148.png'],
     ['mapTest', '/mapTest.json'],
+    ['map', '/map.json'],
     ['mapTilesHeight3', '/hexTiles_128x128_height_3x20.png'],
+    // ['mapTiles', '/hexTiles_128x128_hex_128x110.5.png'],
+    ['mapTiles', '/g32.png'],
   ];
 
   assetsToLoad.forEach(([name, src]) => {
@@ -33,20 +36,52 @@ async function initGame() {
   });
 
   try {
-    await game.assets.loadAllAssets((asset) => {
-      console.log(asset);
-    });
+    // await game.assets.loadAllAssets((asset) => {
+    //   console.log(asset);
+    // });
+    await game.assets.loadAllAssets();
   } catch (err) {
     console.error(err);
   }
 
-  const mapMetadata = game.assets.get('mapTest')!.asset.data as {
+  // game.setTileSet('mapTiles', 'mapTilesHeight3', 128, 128 + 3 * 20);
+  game.setTileSet('mapTiles', 'mapTiles', 128, 128 + 20);
+
+  // const mapMetadata = game.assets.get('mapTest')!.asset.data as {
+  const mapMetadata = game.assets.get('map')!.asset.data as {
     name: string;
     locations: MapHexMetadata[];
   };
-  console.log('mapMetadata', mapMetadata);
+
   const wm = new WorldMap(mapMetadata.name, mapMetadata.locations);
   game.worldMap = wm;
+
+  // const newMetadata = game.worldMap.getMapMetadata();
+  // console.log('newMetadata', newMetadata);
+
+  const terrainSelect = document.getElementById('terrainType');
+  terrainSelect?.addEventListener('change', (e: Event) => {
+    const target = e.target as HTMLSelectElement;
+    const value = target.value as Terrain;
+    game.testTerrain = value;
+  });
+
+  const downloadMapBtn = document.getElementById('downloadMap');
+  downloadMapBtn?.addEventListener('click', () => {
+    console.log('clickity');
+
+    const mapJson = JSON.stringify(wm.getMapMetadata(), null, 2);
+    const tempElement = document.createElement('a');
+    tempElement.setAttribute(
+      'href',
+      'data:text/plain;charset=utf-8,' + encodeURIComponent(mapJson)
+    );
+    tempElement.setAttribute('download', 'map.json');
+    tempElement.style.display = 'none';
+    document.body.appendChild(tempElement);
+    tempElement.click();
+    document.body.removeChild(tempElement);
+  });
 
   // const randomMap = generateRandomMap(3);
   // console.log('randomMap', randomMap);
@@ -93,10 +128,10 @@ async function initGame() {
   // });
 
   // test mouse events ////////////////////////////////////////////////////////
-  document.addEventListener('mousemove', (e) => {
-    const hex = Hex.pointToHex([e.clientX, e.clientY]);
-    game.selectHex(cube.toString(hex));
-  });
+  // document.addEventListener('mousemove', (e) => {
+  //   const hex = Hex.pointToHex([e.clientX, e.clientY]);
+  //   game.selectHex(cube.toString(hex));
+  // });
 }
 
 initGame();

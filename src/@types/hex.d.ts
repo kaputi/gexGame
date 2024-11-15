@@ -18,3 +18,14 @@ declare type HexDirection =
   | 'WEST'
   | 'NORTH_WEST';
 declare type DirectionMap = Map<HexDirection, CubeCoord>;
+
+declare type Terrain =
+  | 'grass'
+  | 'forest'
+  | 'river'
+  | 'ocean'
+  | 'desert'
+  | 'mountain'
+  | 'snow'
+  | 'tundra'
+  | '';

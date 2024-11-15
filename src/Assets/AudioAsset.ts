@@ -1,5 +1,4 @@
 import { ASSET_TYPE_AUDIO } from './constants';
-import { Asset, AssetType } from './types';
 
 export class AudioAsset implements Asset {
   type: AssetType = ASSET_TYPE_AUDIO;

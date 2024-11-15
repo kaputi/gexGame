@@ -1,5 +1,3 @@
-import { HexOrientation, HexDirection, NeighborType, DirectionMap } from './types';
-
 export const POINTY_TOP: HexOrientation = 'pointy';
 export const FLAT_TOP: HexOrientation = 'flat';
 // direction
@@ -47,3 +45,5 @@ export const flatDiagonals: DirectionMap = new Map([
   [WEST, [-2, 1, 1]],
   [NORTH_WEST, [-1, -1, 2]],
 ]);
+
+export const cubeEpsilon: CubeCoord = [1e-6, 2e-6, -3e-6];

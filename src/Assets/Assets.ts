@@ -2,8 +2,6 @@ import { AudioAsset } from './AudioAsset';
 import { FontAsset } from './FontAsset';
 import { ImageAsset } from './ImageAsset';
 import { JsonAsset } from './JsonAsset';
-import { TileAsset } from './TileAsset';
-import { Asset } from './types';
 
 export class Assets {
   private toLoad = new Map<string, Asset>();
@@ -26,9 +24,7 @@ export class Assets {
       case 'gif':
       case 'svg':
       case 'webp':
-        asset = src.toLowerCase().includes('tile')
-          ? new TileAsset(name, src)
-          : new ImageAsset(name, src);
+        asset = new ImageAsset(name, src);
         break;
       case 'otf':
       case 'ttf':

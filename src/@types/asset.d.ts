@@ -1,6 +1,6 @@
-export type AssetType = 'image' | 'audio' | 'font' | 'json' | 'tile';
+declare type AssetType = 'image' | 'audio' | 'font' | 'json';
 
-export interface Asset {
+declare interface Asset {
   name: string;
   src: string;
   type: AssetType;

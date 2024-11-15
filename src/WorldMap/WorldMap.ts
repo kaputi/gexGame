@@ -1,5 +1,6 @@
 import { Graph } from '../dataStructures';
-import { AxialCoord, Hex, hexUtils } from '../Hex';
+import { Hex } from '../Hex';
+import { cube } from '../hexUtils';
 
 type Terrain = 'grass' | 'forest' | 'river' | 'ocean' | 'desert' | 'mountain' | 'snow' | 'tundra';
 
@@ -16,17 +17,18 @@ export class WorldMap {
     public readonly name: string,
     mapMetadata: MapHexMetadata[]
   ) {
-    mapMetadata.forEach(({ coord, terrain }) => {
-      const hex = new Hex(...coord);
-      hex.terrain = terrain;
+    mapMetadata.forEach(({ coord }) => {
+      const cubeCoord = cube.fromAxial(coord);
+      const hex = new Hex(cubeCoord[0], cubeCoord[1], cubeCoord[2]);
+      // hex.terrain = terrain;
       this._graph.addNode(hex);
       this.hexes.set(hex.id, hex);
     });
 
     this.hexes.forEach((hex) => {
-      const neighbors = hex.neighbors();
+      const neighbors = hex.allNeighbors();
       neighbors.forEach((neighbor) => {
-        const neighborHex = this.hexes.get(hexUtils.toString(neighbor));
+        const neighborHex = this.hexes.get(cube.toString(neighbor));
         if (!neighborHex) return;
         this._graph.addEdge(hex, neighborHex);
       });

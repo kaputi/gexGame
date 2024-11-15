@@ -1,4 +1,4 @@
-import { AxialCoord, CubeCoord, hexUtils } from './src/Hex';
+import { cube } from '../hexUtils';
 
 interface HexMeta {
   coord: AxialCoord;
@@ -8,8 +8,8 @@ interface HexMeta {
 const terrains = ['grass', 'forest', 'river', 'ocean', 'desert', 'mountain', 'snow', 'tundra'];
 
 export const generateRandomMap = (radius = 3): HexMeta[] => {
-  const origin = hexUtils.createCube();
-  const range = hexUtils.range(origin, radius);
+  const origin = cube.create();
+  const range = cube.range(origin, radius);
   console.log('range', range);
 
   const mappedByR = new Map<number, CubeCoord[]>();
@@ -27,7 +27,7 @@ export const generateRandomMap = (radius = 3): HexMeta[] => {
   });
 
   const AxialSorted = flatCubesSorted.map((cubeC) => {
-    return hexUtils.toAxial(hexUtils.createAxial(), cubeC);
+    return cube.toAxial(cubeC);
   });
 
   const map = AxialSorted.map((coord) => {

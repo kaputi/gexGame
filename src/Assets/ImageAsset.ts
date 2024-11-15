@@ -1,5 +1,4 @@
 import { ASSET_TYPE_IMAGE } from './constants';
-import { Asset } from './types';
 
 export class ImageAsset implements Asset {
   type = ASSET_TYPE_IMAGE;

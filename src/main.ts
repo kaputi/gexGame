@@ -1,19 +1,20 @@
-import { TileAsset } from './Assets/TileAsset';
 import { Game } from './Game';
-import { Hex, hexUtils, POINTY_TOP } from './Hex';
+import { Hex } from './Hex';
+import { cube, POINTY_TOP } from './hexUtils';
 import './style.css';
 import { WorldMap } from './WorldMap';
 import { MapHexMetadata } from './WorldMap/WorldMap';
 
 const config = {
   orientation: POINTY_TOP,
-  hexSize: [128,128],
+  hexWidth: 64,
+  hexHeight: 64,
 };
 
 async function initGame() {
   // configure
   Hex.orientation = config.orientation;
-  Hex.size = config.hexSize as [number, number];
+  Hex.setDimensions(config.hexWidth, config.hexHeight);
 
   // init the game
   const game = new Game();
@@ -30,11 +31,6 @@ async function initGame() {
   assetsToLoad.forEach(([name, src]) => {
     game.assets.add(name, src);
   });
-
-  const mapTiles = game.assets.get('mapTilesHeight3')! .asset as TileAsset;
-  console.log(mapTiles)
-  mapTiles.tileSize = [128, 128];
-  mapTiles.resourceSize = [128, 188];
 
   try {
     await game.assets.loadAllAssets((asset) => {
@@ -99,7 +95,7 @@ async function initGame() {
   // test mouse events ////////////////////////////////////////////////////////
   document.addEventListener('mousemove', (e) => {
     const hex = Hex.pointToHex([e.clientX, e.clientY]);
-    game.selectHex(hexUtils.toString(hex));
+    game.selectHex(cube.toString(hex));
   });
 }
 

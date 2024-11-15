@@ -1,10 +1,10 @@
 import { Assets } from './Assets/Assets';
-import { TileAsset } from './Assets/TileAsset';
 import { Hex } from './Hex/Hex';
 import { drawFps } from './renderers/drawFps';
 import { drawGrid } from './renderers/drawGrid';
 import { drawLoading } from './renderers/drawLoading';
 import { drawMap } from './renderers/drawMap';
+import { drawSelecetdHex } from './renderers/drawSelectedHex';
 import { WorldMap } from './WorldMap';
 
 export class Game {
@@ -34,6 +34,8 @@ export class Game {
   assets = new Assets();
   worldMap: WorldMap | null = null;
 
+  private mouseDown = false;
+
   constructor() {
     const canvas = document.createElement('canvas');
     canvas.style.position = 'fixed ';
@@ -49,7 +51,28 @@ export class Game {
 
     window.addEventListener('resize', this.handleResize.bind(this));
 
+    window.addEventListener('mousedown', this.handleMouseDown.bind(this));
+
+    window.addEventListener('mousemove', this.handleMouseMove.bind(this));
+
+    window.addEventListener('mouseup', this.handleMouseUp.bind(this));
+
     this.handleResize();
+  }
+
+  handleMouseDown() {
+    this.mouseDown = true;
+    // TODO: pick entity
+  }
+
+  handleMouseMove(e: MouseEvent) {
+    if (!this.mouseDown) return;
+    Hex.origin[0] += e.movementX;
+    Hex.origin[1] += e.movementY;
+  }
+
+  handleMouseUp() {
+    this.mouseDown = false;
   }
 
   handleResize() {
@@ -65,13 +88,12 @@ export class Game {
     if (!this.worldMap || id === this._selectedHex?.id) return;
 
     if (this._selectedHex) {
-      this._selectedHex.deselect();
       this._selectedHex = null;
     }
 
     const hex = this.worldMap.hexes.get(id);
     if (!hex) return;
-    hex.select();
+    // hex.select();
     this._selectedHex = hex;
   }
 
@@ -155,9 +177,10 @@ export class Game {
         ctx,
         this.worldMap.hexes,
         // this.assets.get('hexTiles')!.asset.data as HTMLImageElement
-        // this.assets.get('mapTilesHeight3')!.asset.data as HTMLImageElement
-        this.assets.get('mapTilesHeight3')!.asset as TileAsset
+        this.assets.get('mapTilesHeight3')!.asset.data as HTMLImageElement
       );
+    if (this._selectedHex) drawSelecetdHex(ctx, this._selectedHex);
+
     drawFps(ctx, this._fps);
   }
 }

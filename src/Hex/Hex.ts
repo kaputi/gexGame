@@ -137,9 +137,7 @@ export class Hex {
 
   get topLeft(): AxialCoord {
     const [cx, cy] = this.center;
-    const leftCorner = Hex.hexCornerPos(Hex.orientation === POINTY_TOP ? 2 : 3);
-    const topCorner = Hex.hexCornerPos(Hex.orientation === POINTY_TOP ? 4 : 0);
-    return [cx + leftCorner[0], cy + topCorner[1]];
+    return [cx - Hex._width / 2, cy - Hex._height / 2];
   }
 
   get points(): AxialCoord[] {

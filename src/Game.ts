@@ -7,6 +7,7 @@ import { drawGrid } from './renderers/drawGrid';
 import { drawLoading } from './renderers/drawLoading';
 import { drawMap } from './renderers/drawMap';
 import { drawSelecetdHex } from './renderers/drawSelectedHex';
+import { SpriteMap, SpriteSet } from './Sprite';
 import { TileSet } from './TileSet';
 import { WorldMap } from './WorldMap';
 
@@ -36,6 +37,7 @@ export class Game {
 
   assets = new Assets();
   tileSets = new Map<string, TileSet>();
+  spriteSheet = new Map<string, SpriteSet>();
   worldMap: WorldMap | null = null;
 
   testTerrain: Terrain = 'grass';
@@ -139,6 +141,23 @@ export class Game {
     this.tileSets.set(name, new TileSet(name, asset as ImageAsset, tileWidth, tileHeight));
   }
 
+  setSpriteShit(
+    name: string,
+    assetName: string,
+    tileWidth: number,
+    tileHeight: number,
+    spriteMap?: SpriteMap
+  ) {
+    const assetObj = this.assets.get(assetName);
+    if (!assetObj) throw new Error('Asset not found');
+    const { asset } = assetObj;
+    if (asset.type !== ASSET_TYPE_IMAGE) throw new Error('Invalid asset type');
+    this.spriteSheet.set(
+      name,
+      new SpriteSet(name, asset as ImageAsset, tileWidth, tileHeight, 3, 10, spriteMap)
+    );
+  }
+
   selectHex(id: string) {
     if (!this.worldMap || id === this._selectedHex?.id) return;
 
@@ -181,6 +200,13 @@ export class Game {
 
     this.updateFps(elapsed);
     if (this.loadingScreen) this.updateLoading(elapsed);
+
+    const sprites = Array.from(this.spriteSheet.values());
+    sprites.forEach((sprite) => {
+      sprite.update(elapsed);
+    });
+    // const spriteSet = this.spriteSheet.get('knightSprites');
+    // if (spriteSet) spriteSet.update(elapsed);
   }
 
   updateFps(elapsed: number) {
@@ -226,15 +252,15 @@ export class Game {
     }
 
     if (this.drawGrid) drawGrid(ctx, this._canvas);
-    if (this.worldMap)
-      drawMap(
-        ctx,
-        this.worldMap.hexes,
-        // this.assets.get('hexTiles')!.asset.data as HTMLImageElement
-        // this.assets.get('mapTilesHeight3')!.asset.data as HTMLImageElement
-        this.tileSets.get('mapTiles')!
-      );
+    if (this.worldMap) drawMap(ctx, this.worldMap.hexes, this.tileSets.get('mapTiles')!);
     if (this._selectedHex) drawSelecetdHex(ctx, this._selectedHex);
+
+    const sprites = Array.from(this.spriteSheet.values());
+    sprites.forEach((sprite) => {
+      sprite.draw(ctx);
+    });
+    // const spriteSet = this.spriteSheet.get('knightSprites');
+    // if (spriteSet) spriteSet.draw(ctx);
 
     drawFps(ctx, this._fps);
   }

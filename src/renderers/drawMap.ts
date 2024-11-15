@@ -16,24 +16,18 @@ const posittions = new Map<string, [number, number]>([
 export const drawMap = (ctx: CanvasRenderingContext2D, map: Map<string, Hex>, tileSet: TileSet) => {
   const { width, height } = Hex;
 
-  const tileImage = tileSet.getImage();
-  const { tileWidth, tileHeight, ratio } = tileSet;
-
   for (const hex of map.values()) {
-    if (hex.terrain === '') continue;
     const [tx, ty] = posittions.get(hex.terrain) || [0, 0];
     const [x, y] = hex.topLeft;
-    ctx.drawImage(
-      tileImage,
-      tx * tileWidth,
-      ty * tileHeight,
-      tileWidth,
-      tileHeight,
-      x,
-      y,
-      width,
-      height * ratio
-    );
+
+    tileSet.frameX = tx;
+    tileSet.frameY = ty;
+    tileSet.width = width;
+    tileSet.height = height;
+    tileSet.x = x;
+    tileSet.y = y;
+
+    tileSet.draw(ctx);
   }
 
   // ctx.strokeStyle = '#ffffff';

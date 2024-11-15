@@ -1,6 +1,7 @@
 import { Game } from './Game';
 import { Hex } from './Hex';
 import { POINTY_TOP } from './hexUtils';
+import { SpriteMap, SpriteSet } from './Sprite';
 import './style.css';
 import { WorldMap } from './WorldMap';
 import { MapHexMetadata } from './WorldMap/WorldMap';
@@ -29,6 +30,7 @@ async function initGame() {
     ['mapTilesHeight3', '/hexTiles_128x128_height_3x20.png'],
     // ['mapTiles', '/hexTiles_128x128_hex_128x110.5.png'],
     ['mapTiles', '/g32.png'],
+    ['knightSprites', '/knight_sprite_sheet_587x707.png'],
   ];
 
   assetsToLoad.forEach(([name, src]) => {
@@ -42,10 +44,59 @@ async function initGame() {
     await game.assets.loadAllAssets();
   } catch (err) {
     console.error(err);
+    return; // TODO: better handling
   }
 
   // game.setTileSet('mapTiles', 'mapTilesHeight3', 128, 128 + 3 * 20);
   game.setTileSet('mapTiles', 'mapTiles', 128, 128 + 20);
+
+  const spriteMap: SpriteMap = new Map([
+    ['idle', { start: 0, length: 10 }],
+    ['walk', { start: 10, length: 10 }],
+    ['run', { start: 20, length: 10 }],
+  ]);
+
+  const sprites: SpriteSet[] = [];
+  let x = 0;
+  let y = 10;
+  for (let i = 0; i < 540; i++) {
+    game.setSpriteShit('knightSprites' + i, 'knightSprites', 587, 707, spriteMap);
+    const sprite = game.spriteSheet.get('knightSprites' + i)!;
+    // sprite.x = Hex.origin[0];
+    if (i !== 0 && i % 36 === 0) {
+      x = 0;
+      y += 707 / 10 + 8;
+    }
+    sprite.x = x;
+    x += 587 / 10 + 8;
+    sprite.y = y;
+    sprite.width = 587 / 10;
+    sprite.height = 707 / 10;
+    sprites.push(sprite);
+    sprite.speed = 1000 / 24;
+    // sprite.speed = 1000 / 60;
+  }
+  // game.setSpriteShit('knightSprites', 'knightSprites', 587, 707, spriteMap);
+  // const sprite = game.spriteSheet.get('knightSprites')!;
+  // sprite.x = Hex.origin[0];
+  // sprite.y = Hex.origin[1];
+  // sprite.width = 587 / 4;
+  // sprite.height = 707 / 4;
+  // sprite.spriteName = 'walk';
+  // console.log('sprite', sprite);
+
+  const animations = ['idle', 'walk', 'run'];
+
+  let count = 0;
+  setInterval(() => {
+    count++;
+    if (count >= animations.length) count = 0;
+    console.log('changing Animation to ', animations[count]);
+    sprites.forEach((sprite) => {
+      sprite.spriteName = animations[count];
+    });
+    // sprite.spriteName = animations[count];
+  }, 2000);
 
   // const mapMetadata = game.assets.get('mapTest')!.asset.data as {
   const mapMetadata = game.assets.get('map')!.asset.data as {

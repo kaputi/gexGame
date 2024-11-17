@@ -1,6 +1,5 @@
 declare interface ScreenI {
   id: string;
-  assets?: AssetManager;
   update(deltaTime: number): void;
   draw(ctx: CanvasRenderingContext2D): void;
   handleKeyDown?(e: KeyboardEvent): void;

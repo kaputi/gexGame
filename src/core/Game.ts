@@ -34,6 +34,15 @@ export class Game {
     requestAnimationFrame(this.loop.bind(this));
   }
 
+  set backgroundColor(color: string) {
+    if (!/^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/.test(color)) throw new Error('Invalid color');
+    this._backgroundColor = color;
+  }
+
+  get backgroundColor(): string {
+    return this._backgroundColor;
+  }
+
   private handleResize(): void {
     // TODO: move this to state
     this._width = window.innerWidth;

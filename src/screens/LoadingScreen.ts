@@ -1,24 +1,28 @@
+import { AssetManager } from '@core/assets';
+
 export class LoadingScreen implements ScreenI {
   id = 'loading';
 
-  spinnerRotation = 0;
-  rotationSpeed = 0.005;
+  private _spinnerRotation = 0;
+  private _rotationSpeed = 0.005;
 
-  count = 0;
-  loaded = 0;
+  assetManagerToLoad: AssetManager | null = null;
 
   draw(ctx: CanvasRenderingContext2D): void {
     const cx = ctx.canvas.width / 2;
     const cy = ctx.canvas.height / 2;
 
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '18px Arial';
-    ctx.fillText(`Loading: ${this.loaded} / ${this.count}`, 10, cy * 2 - 30);
+    if (this.assetManagerToLoad) {
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '18px Arial';
+      const [loaded, count] = this.assetManagerToLoad.progress;
+      ctx.fillText(`Loading: ${loaded} / ${count}`, 10, cy * 2 - 30);
+    }
 
     ctx.save();
     ctx.beginPath();
     ctx.translate(cx, cy);
-    ctx.rotate(this.spinnerRotation);
+    ctx.rotate(this._spinnerRotation);
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 15;
     ctx.lineCap = 'round';
@@ -29,7 +33,7 @@ export class LoadingScreen implements ScreenI {
   }
 
   update(deltaTime: number): void {
-    this.spinnerRotation += this.rotationSpeed * deltaTime;
-    if (this.spinnerRotation >= 360) this.spinnerRotation = 0;
+    this._spinnerRotation += this._rotationSpeed * deltaTime;
+    if (this._spinnerRotation >= 360) this._spinnerRotation = 0;
   }
 }

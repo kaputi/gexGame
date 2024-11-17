@@ -9,6 +9,7 @@
     "build": "npm run format && npm run lint && tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint src",
+    "type-check": "tsc --noEmit",
     "format": "prettier --write src | grep -v \"unchanged\" | xargs",
     "format-verbose": "prettier --write src",
     "test": "jest"

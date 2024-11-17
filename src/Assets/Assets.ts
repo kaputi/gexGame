@@ -7,7 +7,6 @@ export class Assets {
   private toLoad = new Map<string, Asset>();
   private loaded = new Map<string, Asset>();
   private count = 0;
-  protected _progress = '';
 
   get progress(): [number, number] {
     return [this.loaded.size, this.count];

@@ -1,4 +1,4 @@
-import { ASSET_TYPE_FONT } from './constants';
+import { ASSET_TYPE_FONT } from '@core/assets';
 
 export class FontAsset implements Asset {
   type = ASSET_TYPE_FONT;

@@ -1,4 +1,4 @@
-import { ASSET_TYPE_IMAGE } from './constants';
+import { ASSET_TYPE_IMAGE } from '@core/assets';
 
 export class ImageAsset implements Asset {
   type = ASSET_TYPE_IMAGE;

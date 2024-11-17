@@ -1,4 +1,4 @@
-import { ASSET_TYPE_AUDIO } from './constants';
+import { ASSET_TYPE_AUDIO } from '@core/assets';
 
 export class AudioAsset implements Asset {
   type: AssetType = ASSET_TYPE_AUDIO;

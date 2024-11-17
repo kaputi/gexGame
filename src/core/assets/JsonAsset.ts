@@ -1,4 +1,4 @@
-import { ASSET_TYPE_JSON } from './constants';
+import { ASSET_TYPE_JSON } from '@core/assets';
 
 export class JsonAsset implements Asset {
   type = ASSET_TYPE_JSON;

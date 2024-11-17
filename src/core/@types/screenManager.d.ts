@@ -1,5 +1,3 @@
-import { AssetManager } from '@core/assets';
-
 declare interface ScreenI {
   id: string;
   assets?: AssetManager;

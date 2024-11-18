@@ -1,4 +1,5 @@
 import { AssetManager } from '@core/assets';
+import { Scene } from '@core/scenes';
 
 export class GameScene implements Scene {
   id = 'game';

@@ -1,4 +1,4 @@
-import { ImageAsset } from '@core/assets';
+import { ImageAsset } from './assets';
 
 export class TileSheet {
   private _frameX = 0;

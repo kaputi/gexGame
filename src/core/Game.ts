@@ -1,5 +1,5 @@
-import { FPS } from '@core/FPS';
-import { SceneManager } from '@core/SceneManager';
+import { FPS } from './FPS';
+import { SceneManager } from './scenes';
 
 export class Game {
   private _canvas: HTMLCanvasElement;

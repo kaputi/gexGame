@@ -1,4 +1,8 @@
-import { ImageAsset, AudioAsset, FontAsset, JsonAsset } from '@core/assets';
+import { AudioAsset } from './AudioAsset';
+import { FontAsset } from './FontAsset';
+import { ImageAsset } from './ImageAsset';
+import { JsonAsset } from './JsonAsset';
+import { Asset } from './types';
 
 export class AssetManager {
   private _toLoad = new Map<string, Asset>();
@@ -85,5 +89,13 @@ export class AssetManager {
       if (callback) callback(asset);
     });
     await Promise.all(promises);
+  }
+
+  extractAssets(assets: string[]): Asset[] {
+    const toKeep: Asset[] = [];
+    assets.forEach((name) => {
+      if (this._loaded.has(name)) toKeep.push(this._loaded.get(name)!);
+    });
+    return toKeep;
   }
 }

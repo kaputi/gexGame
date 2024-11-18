@@ -1,10 +1,49 @@
+import { Scene } from '@core/scenes';
+
+export interface MenuItem {
+  text: string;
+  help?: string;
+  action: () => unknown;
+}
+
+interface Menu {
+  selected: number;
+  items: MenuItem[];
+}
+
 export class MenuScene implements Scene {
   id = 'menu';
 
-  menus = new Map<string, MenuItem[]>();
-  activeMenu = '';
-  selectedOption = 0;
-  itemHeight = 30;
+  private menus = new Map<string, Menu>();
+  private activeMenu = '';
+  public itemHeight = 30;
+
+  public addMenu(id: string, menuItems: MenuItem[]) {
+    this.menus.set(id, { selected: 0, items: menuItems });
+  }
+
+  public activateMenu(id: string) {
+    if (!this.menus.has(id)) return;
+    this.activeMenu = id;
+  }
+
+  public handleKeyDown(e: KeyboardEvent) {
+    const menu = this.menus.get(this.activeMenu);
+    if (!menu) return;
+    switch (e.key) {
+      case 'ArrowUp':
+      case 'w':
+        menu.selected = Math.max(0, menu.selected - 1);
+        break;
+      case 'ArrowDown':
+      case 's':
+        menu.selected = Math.min(menu.items.length - 1, menu.selected + 1);
+        break;
+      case 'Enter':
+        menu.items[menu.selected].action();
+        break;
+    }
+  }
 
   draw(ctx: CanvasRenderingContext2D) {
     if (!this.menus.has(this.activeMenu)) return;
@@ -14,13 +53,13 @@ export class MenuScene implements Scene {
     ctx.font = '24px Arial';
     ctx.textAlign = 'center';
 
-    const items = this.menus.get(this.activeMenu)!;
+    const { items, selected } = this.menus.get(this.activeMenu)!;
 
     const start = height / 2 - (items.length * this.itemHeight) / 2;
 
     for (let i = 0; i < items.length; i++) {
       const y = start + i * this.itemHeight;
-      if (i === this.selectedOption) {
+      if (i === selected) {
         const textSize = ctx.measureText(items[i].text);
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(width / 2 - textSize.width / 2, y - 24, textSize.width, 30);
@@ -28,33 +67,6 @@ export class MenuScene implements Scene {
       } else ctx.fillStyle = '#ffffff';
 
       ctx.fillText(items[i].text, width / 2, y);
-    }
-  }
-
-  addMenu(id: string, menu: MenuItem[]) {
-    this.menus.set(id, menu);
-  }
-
-  activateMenu(id: string) {
-    this.activeMenu = id;
-  }
-
-  handleKeyDown(e: KeyboardEvent) {
-    switch (e.key) {
-      case 'ArrowUp':
-      case 'w':
-        this.selectedOption = Math.max(0, this.selectedOption - 1);
-        break;
-      case 'ArrowDown':
-      case 's':
-        this.selectedOption = Math.min(
-          this.menus.get(this.activeMenu)!.length - 1,
-          this.selectedOption + 1
-        );
-        break;
-      case 'Enter':
-        this.menus.get(this.activeMenu)![this.selectedOption].action();
-        break;
     }
   }
 }

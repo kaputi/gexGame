@@ -1,5 +1,7 @@
-import { TileSheet } from '@core/TileSheet';
-import { ImageAsset } from '@core/assets';
+import { TileSheet } from './TileSheet';
+import { ImageAsset } from './assets';
+
+export type SpriteMap = Map<string, { start: number; length: number }>;
 
 export class SpriteSheet extends TileSheet {
   public speed = 1000 / 12;

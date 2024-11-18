@@ -1,3 +1,5 @@
+import { Scene } from './types';
+
 export class SceneManager {
   private _activeScenes: Scene[] = [];
   private _scenes = new Map<string, Scene>();

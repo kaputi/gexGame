@@ -1,5 +1,5 @@
 import { FPS } from '@core/FPS';
-import { ScreenManager } from '@core/ScreenManager';
+import { SceneManager } from '@core/SceneManager';
 
 export class Game {
   private _canvas: HTMLCanvasElement;
@@ -12,7 +12,7 @@ export class Game {
 
   private _FPS = new FPS();
 
-  screens = new ScreenManager();
+  scenes = new SceneManager();
   constructor() {
     const canvas = document.createElement('canvas');
     canvas.style.position = 'fixed';
@@ -58,7 +58,7 @@ export class Game {
    */
   private update(deltaTime: number): void {
     this._FPS.update(deltaTime);
-    this.screens.update(deltaTime);
+    this.scenes.update(deltaTime);
   }
 
   private draw(): void {
@@ -68,9 +68,9 @@ export class Game {
     ctx.fillStyle = this._backgroundColor;
     ctx.fillRect(0, 0, this._width, this._height);
 
-    this.screens.draw(ctx);
+    this.scenes.draw(ctx);
 
-    // fps is always on top and is not a screen
+    // fps is always on top and is not a scene
     this._FPS.draw(ctx);
   }
 

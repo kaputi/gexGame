@@ -1,6 +1,6 @@
 import { AssetManager } from '@core/assets';
 
-export class LoadingScreen implements ScreenI {
+export class LoadingScene implements Scene {
   id = 'loading';
 
   private _spinnerRotation = 0;

@@ -1,5 +1,5 @@
-export const drawGrid = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
-  const { width, height } = canvas;
+export const drawGrid = (ctx: CanvasRenderingContext2D) => {
+  const { width, height } = ctx.canvas;
   const halfWidth = width / 2;
   const halfHeight = height / 2;
 

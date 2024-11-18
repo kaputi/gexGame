@@ -22,7 +22,10 @@
 
     "baseUrl": "./src",
     "paths": {
-      "@core/*": ["core/*"]
+      "@core": ["core"],
+      "@core/*": ["core/*"],
+      "@scenes": ["scenes"],
+      "@scenes/*": ["scenes/*"]
     },
     "typeRoots": ["./node_modules/@types", "./src/@types"]
   },

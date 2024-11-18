@@ -1,18 +1,17 @@
 import { Game } from '@core/Game';
-import { GameScreen } from 'screens/GameScreen';
-import { LoadingScreen } from 'screens/LoadingScreen';
+import { GameScene, MenuScene, LoadingScene } from '@scenes';
 
 const init = async () => {
   const game = new Game();
 
-  const loadingScreen = new LoadingScreen();
+  const loadingScene = new LoadingScene();
 
-  game.screens.add(loadingScreen);
-  game.screens.activate('loading');
+  game.scenes.add(loadingScene);
+  game.scenes.activate('loading');
 
-  const gameScreen = new GameScreen();
+  const gameScene = new GameScene();
 
-  loadingScreen.assetManagerToLoad = gameScreen.assets;
+  loadingScene.assetManagerToLoad = gameScene.assets;
 
   const assets: [string, string][] = [
     ['map', 'map.json'],
@@ -22,10 +21,35 @@ const init = async () => {
     ['music2', '8bit-music.mp3'],
   ];
 
-  assets.forEach(([name, src]) => gameScreen.assets.add(name, src));
+  assets.forEach(([name, src]) => gameScene.assets.add(name, src));
 
-  game.screens.remove('loading');
-  game.screens.add(gameScreen);
+  game.scenes.remove('loading');
+  game.scenes.add(gameScene);
+
+  const mainMenuScene = new MenuScene();
+  mainMenuScene.addMenu('main', [
+    {
+      text: 'Start Game',
+      action: () => {
+        game.scenes.activate('game');
+        game.scenes.remove('menu');
+      },
+    },
+    { text: 'Load Game', action: () => console.log('Load Game') },
+    { text: 'Map Editor', action: () => console.log('Map Editor') },
+    { text: 'Options', action: () => mainMenuScene.activateMenu('options') },
+    { text: 'Exit', action: () => console.log('Exit') },
+  ]);
+
+  mainMenuScene.addMenu('options', [
+    { text: 'Music Volume', action: () => console.log('Music Volume') },
+    { text: 'Sound Volume', action: () => console.log('Sound Volume') },
+    { text: 'Back', action: () => mainMenuScene.activateMenu('main') },
+  ]);
+  mainMenuScene.activateMenu('main');
+
+  game.scenes.add(mainMenuScene);
+  game.scenes.activate('menu');
 };
 
 init();

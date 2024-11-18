@@ -1,12 +1,12 @@
 import { AssetManager } from '@core/assets';
 
-export class GameScreen implements ScreenI {
+export class GameScene implements Scene {
   id = 'game';
 
   assets = new AssetManager();
 
   update(deltaTime: number): void {
-    if (deltaTime > 20) console.log('GameScreen update');
+    if (deltaTime > 20) console.log('GameScene update');
   }
 
   draw(ctx: CanvasRenderingContext2D): void {

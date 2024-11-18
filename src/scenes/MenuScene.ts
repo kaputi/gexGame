@@ -1,4 +1,5 @@
 import { Scene } from '@core/scenes';
+import { validateHexColor } from 'utils/validateHexColor';
 
 export interface MenuItem {
   text: string;
@@ -6,20 +7,47 @@ export interface MenuItem {
   action: () => unknown;
 }
 
-interface Menu {
+export interface Menu {
   selected: number;
+  title?: string;
   items: MenuItem[];
 }
 
 export class MenuScene implements Scene {
-  id = 'menu';
-
   private menus = new Map<string, Menu>();
   private activeMenu = '';
+
+  private _background: string | null = '#000000';
+  private _backgroundAlpha = 0.5;
+
   public itemHeight = 30;
 
-  public addMenu(id: string, menuItems: MenuItem[]) {
-    this.menus.set(id, { selected: 0, items: menuItems });
+  set background(color: string | null) {
+    if (color === null) {
+      this._background = null;
+      return;
+    }
+    if (!validateHexColor(color)) throw new Error('Invalid color');
+    this._background = color;
+  }
+
+  get background(): string | null {
+    return this._background;
+  }
+
+  set backgroundAlpha(alpha: number) {
+    this._backgroundAlpha = Math.min(1, Math.max(0, alpha));
+  }
+
+  get backgroundAlpha(): number {
+    return this._backgroundAlpha;
+  }
+
+  constructor(public id: string) {}
+
+  public addMenu(id: string, menuItems: MenuItem[], title?: string) {
+    this.menus.set(id, { selected: 0, items: menuItems, title });
+    if (this.activeMenu === '') this.activeMenu = id;
   }
 
   public activateMenu(id: string) {
@@ -53,9 +81,22 @@ export class MenuScene implements Scene {
     ctx.font = '24px Arial';
     ctx.textAlign = 'center';
 
-    const { items, selected } = this.menus.get(this.activeMenu)!;
+    if (this._background) {
+      ctx.globalAlpha = this._backgroundAlpha;
+      ctx.fillStyle = this._background;
+      ctx.fillRect(0, 0, width, height);
+      ctx.globalAlpha = 1;
+    }
 
-    const start = height / 2 - (items.length * this.itemHeight) / 2;
+    const { items, selected, title } = this.menus.get(this.activeMenu)!;
+
+    let start = height / 2 - (items.length * this.itemHeight) / 2;
+
+    if (title) {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(title, width / 2, start);
+      start += this.itemHeight * 2;
+    }
 
     for (let i = 0; i < items.length; i++) {
       const y = start + i * this.itemHeight;

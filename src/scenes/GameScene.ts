@@ -2,9 +2,9 @@ import { AssetManager } from '@core/assets';
 import { Scene } from '@core/scenes';
 
 export class GameScene implements Scene {
-  id = 'game';
-
   assets = new AssetManager();
+
+  constructor(public id: string) {}
 
   update(deltaTime: number): void {
     if (deltaTime > 20) console.log('GameScene update');

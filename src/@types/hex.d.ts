@@ -27,5 +27,4 @@ declare type Terrain =
   | 'desert'
   | 'mountain'
   | 'snow'
-  | 'tundra'
-  | '';
+  | 'tundra';

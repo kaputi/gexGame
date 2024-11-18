@@ -1,20 +1,61 @@
 import { AssetManager } from '@core/assets';
-import { Scene } from '@core/scenes';
+import { Scene, SceneManager } from '@core/scenes';
+import { TileSheet } from '@core/TileSheet';
+import { Hex } from 'Hex';
+import { cube } from 'hexUtils';
+import { drawHexGrid } from 'renderers/drawHexGrid';
+import { drawMap } from 'renderers/drawMap';
+
+const assetsToLoad: [string, string][] = [['hexTiles', 'g32.png']];
 
 export class MapEditorScene implements Scene {
-  id = 'mapEditor ';
   assets = new AssetManager();
+  manager?: SceneManager;
 
-  // constructor(assetsToLoad: [string, string][]) {
-  // assetsToLoad.forEach(([name, src]) => this.assets.addImage(name, src));
-  // }
+  setTerrain: Terrain = 'grass';
 
-  update() {
-    console.log('Updating map editor scene');
+  private gridHexes = new Map<string, Hex>();
+  private mapHexes = new Map<string, Hex>();
+
+  public mapTileSheet: TileSheet | null = null;
+
+  constructor(public id: string) {
+    const range = cube.range(cube.create(), 25);
+    range.forEach(([q, r, s]) => {
+      const hex = new Hex(q, r, s);
+      this.gridHexes.set(hex.id, hex);
+    });
+
+    assetsToLoad.forEach(([id, src]) => {
+      this.assets.add(id, src);
+    });
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    if (ctx.canvas.width === 0 || ctx.canvas.height === 0) return;
-    console.log('Drawing map editor scene');
+    drawHexGrid(ctx, Array.from(this.gridHexes.values()));
+
+    if (this.mapTileSheet) {
+      drawMap(ctx, this.mapHexes, this.mapTileSheet);
+    }
+  }
+
+  handleMouseUp(e: MouseEvent) {
+    const coord = Hex.pointToHex([e.clientX, e.clientY]);
+    const id = cube.toString(coord);
+    if (this.mapHexes.has(id)) {
+      this.mapHexes.get(id)!.terrain = this.setTerrain;
+    } else {
+      const hex = new Hex(coord[0], coord[1], coord[2]);
+      hex.terrain = this.setTerrain;
+      this.mapHexes.set(hex.id, hex);
+    }
+  }
+
+  handleKeyDown(e: KeyboardEvent) {
+    switch (e.key) {
+      case 'Enter':
+        if (this.manager) this.manager.activate('editorPauseMenu');
+        break;
+    }
   }
 }

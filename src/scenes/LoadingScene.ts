@@ -2,12 +2,12 @@ import { AssetManager } from '@core/assets';
 import { Scene } from '@core/scenes';
 
 export class LoadingScene implements Scene {
-  id = 'loading';
-
   private _spinnerRotation = 0;
   private _rotationSpeed = 0.005;
 
   assetManagerToLoad: AssetManager | null = null;
+
+  constructor(public id: string) {}
 
   draw(ctx: CanvasRenderingContext2D): void {
     const cx = ctx.canvas.width / 2;

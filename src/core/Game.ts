@@ -1,5 +1,7 @@
+import { Hex } from 'Hex';
 import { FPS } from './FPS';
 import { SceneManager } from './scenes';
+import { validateHexColor } from 'utils/validateHexColor';
 
 export class Game {
   private _canvas: HTMLCanvasElement;
@@ -35,7 +37,7 @@ export class Game {
   }
 
   set backgroundColor(color: string) {
-    if (!/^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/.test(color)) throw new Error('Invalid color');
+    if (!validateHexColor(color)) throw new Error('Invalid color');
     this._backgroundColor = color;
   }
 
@@ -49,6 +51,7 @@ export class Game {
     this._height = window.innerHeight;
     this._canvas.width = this._width;
     this._canvas.height = this._height;
+    Hex.origin = [this._width / 2, this._height / 2];
   }
 
   /**

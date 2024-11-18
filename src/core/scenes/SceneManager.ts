@@ -43,6 +43,7 @@ export class SceneManager {
    */
   public add(scene: Scene): void {
     if (this._scenes.has(scene.id)) throw new Error(`Scene with id ${scene.id} already exists`);
+    scene.manager = this;
     this._scenes.set(scene.id, scene);
   }
 
@@ -67,20 +68,32 @@ export class SceneManager {
    * Activate a scene and puts it on top
    *
    * @param id The id of the scene to activate
+   * @returns The activated scene
    */
-  public activate(id: string): void {
+  public activate(id: string): Scene {
     const scene = this._scenes.get(id);
     if (!scene) throw new Error(`Scene with id ${id} not found`);
     this._activeScenes.push(scene);
+    return scene;
   }
 
   /**
-   * Deactivate the top scene
+   * Deactivate a scene if no id is passed the top scene is deactivate
    *
+   * @param id The id of the scene to deactivate
    * @returns The deactivated scene or null if no scenes are active
    */
-  public deactivate(): Scene | null {
+  public deactivate(id?: string): Scene | null {
     if (this._activeScenes.length === 0) return null;
-    return this._activeScenes.pop()!;
+    if (id) {
+      const index = this._activeScenes.findIndex((scene) => scene.id === id);
+      return this._activeScenes.splice(index, 1)[0];
+    } else {
+      return this._activeScenes.pop()!;
+    }
+  }
+
+  public deactivateAll(): void {
+    this._activeScenes = [];
   }
 }

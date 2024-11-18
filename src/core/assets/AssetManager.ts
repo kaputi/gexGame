@@ -64,13 +64,15 @@ export class AssetManager {
     this._toLoad.clear();
   }
 
-  clearLoaded(): void {
+  clearLoaded(): Asset[] {
+    const loadedAssets = Array.from(this._loaded.values());
     this._loaded.clear();
+    return loadedAssets;
   }
 
-  clear(): void {
+  clear(): Asset[] {
     this.clearToLoad();
-    this.clearLoaded();
+    return this.clearLoaded();
   }
 
   async loadAsset(name: string): Promise<Asset> {

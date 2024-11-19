@@ -2,7 +2,7 @@ import { AssetManager } from '@core/assets';
 import { Scene, SceneManager } from '@core/scenes';
 import { TileSheet } from '@core/TileSheet';
 import { Hex } from 'Hex';
-import { cube } from 'hexUtils';
+import { cube, sortMap } from 'hexUtils';
 import { drawHexGrid } from 'renderers/drawHexGrid';
 import { drawMap } from 'renderers/drawMap';
 
@@ -47,7 +47,7 @@ export class MapEditorScene implements Scene {
     } else {
       const hex = new Hex(coord[0], coord[1], coord[2]);
       hex.terrain = this.setTerrain;
-      this.mapHexes.set(hex.id, hex);
+      this.addHexToMap(hex);
     }
   }
 
@@ -57,5 +57,12 @@ export class MapEditorScene implements Scene {
         if (this.manager) this.manager.activate('editorPauseMenu');
         break;
     }
+  }
+
+  addHexToMap(hex: Hex) {
+    this.mapHexes.set(hex.id, hex);
+    const mapArr = Array.from(this.mapHexes.values());
+    const sorted = sortMap(mapArr);
+    this.mapHexes = new Map(sorted.map((hex) => [hex.id, hex]));
   }
 }

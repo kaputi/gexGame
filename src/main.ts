@@ -6,8 +6,8 @@ import { MapEditorScene } from '@scenes/MapEditorScene';
 import { Hex } from 'Hex';
 
 const init = async () => {
-  Hex.width = 64;
-  Hex.height = 68;
+  Hex.width = 128;
+  Hex.height = Hex.width * 0.75;
   Hex.origin = [window.innerWidth / 2, window.innerHeight / 2];
 
   const game = new Game();
@@ -58,8 +58,8 @@ const init = async () => {
         const mapTileSheet = new TileSheet(
           'hexTiles',
           editorAssets.get('hexTiles')! as ImageAsset,
-          32,
-          32
+          128,
+          128 + 20
         );
         mapEditorScene.mapTileSheet = mapTileSheet;
         setTimeout(() => {

@@ -3,7 +3,7 @@ import { FPS } from './FPS';
 import { SceneManager } from './scenes';
 import { validateHexColor } from 'utils/validateHexColor';
 
-export class Game {
+class Game {
   private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
 
@@ -34,6 +34,10 @@ export class Game {
     window.addEventListener('resize', this.handleResize.bind(this));
 
     requestAnimationFrame(this.loop.bind(this));
+  }
+
+  get ctx(): CanvasRenderingContext2D {
+    return this._ctx;
   }
 
   set backgroundColor(color: string) {
@@ -88,3 +92,5 @@ export class Game {
     requestAnimationFrame(this.loop.bind(this));
   }
 }
+
+export const game = new Game();

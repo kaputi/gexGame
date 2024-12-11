@@ -1,5 +1,6 @@
 import { ImageAsset } from '@core/assets';
-import { Game } from '@core/Game';
+// import { Game } from '@core/Game';
+import { game } from '@core/Game';
 import { TileSheet } from '@core/TileSheet';
 import { GameScene, MenuScene, LoadingScene } from '@scenes';
 import { MapEditorScene } from '@scenes/MapEditorScene';
@@ -10,7 +11,7 @@ const init = async () => {
   Hex.height = Hex.width * 0.75;
   Hex.origin = [window.innerWidth / 2, window.innerHeight / 2];
 
-  const game = new Game();
+  // const game = new Game();
 
   const loadingScene = new LoadingScene('loading');
   const gameScene = new GameScene('game');
@@ -78,8 +79,6 @@ const init = async () => {
     { text: 'Back', action: () => mainMenuScene.activateMenu('main') },
   ]);
 
-  game.scenes.activate('mainMenu');
-
   editorPauseMenu.addMenu('pause', [
     {
       text: 'Resume',
@@ -131,6 +130,19 @@ const init = async () => {
     ],
     'Are you sure?'
   );
+
+  // game.scenes.activate('mainMenu');
+
+  // NOTE: go directly to map editor
+  await mapEditorScene.assets.loadAll();
+  const mapTileSheet = new TileSheet(
+    'hexTiles',
+    mapEditorScene.assets.get('hexTiles')! as ImageAsset,
+    128,
+    128 + 20
+  );
+  mapEditorScene.mapTileSheet = mapTileSheet;
+  game.scenes.activate('mapEditor');
 };
 
 init();
